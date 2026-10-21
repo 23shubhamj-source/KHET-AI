@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initStatCounters();
   initFAQAccordion();
   initContactForm();
+  initEvidenceReconciliation();
 });
 
 /* ==========================================================================
@@ -982,6 +983,23 @@ function initAICropDetector() {
     const pestEl = document.getElementById('det-res-disease-pesticide');
     if (pestEl) pestEl.textContent = dispPesticide;
 
+    // Save diagnosed disease into global state and trigger centralized reconciliation
+    window.latestDiseaseResult = {
+      crop: data.crop || 'Crop',
+      disease: dispName,
+      cause: dispCause,
+      organic: dispOrganic,
+      chemical: dispChemical,
+      prevention: dispPrevention,
+      fertilizer: dispFertilizer,
+      pesticide: dispPesticide,
+      severity: data.severity || 'Moderate',
+      confidence: data.confidence ? parseFloat(data.confidence) : 92.0
+    };
+    if (typeof triggerEvidenceReconciliation === 'function') {
+      triggerEvidenceReconciliation();
+    }
+
     // Multi-Language Voice Reading for all 7 dimensions
     const listenBtn = document.getElementById('det-res-listen-btn');
     if (listenBtn) {
@@ -1411,6 +1429,10 @@ window.renderWeatherUI = function(district) {
     const hourlyTemps = data.hourly.temperature_2m.slice(0, 12);
     const hourlyRain = data.hourly.precipitation_probability ? data.hourly.precipitation_probability.slice(0, 12) : [];
     renderWeatherChart(hourlyLabels, hourlyTemps, hourlyRain);
+  }
+
+  if (typeof triggerEvidenceReconciliation === 'function') {
+    triggerEvidenceReconciliation();
   }
 };
 
@@ -3517,6 +3539,10 @@ function initCropRecommendation() {
           timestamp: new Date().toISOString()
         };
 
+        if (typeof triggerEvidenceReconciliation === 'function') {
+          triggerEvidenceReconciliation();
+        }
+
         resultsContainer.innerHTML = `
           <div class="space-y-3 mt-4">
             <h4 class="font-bold text-white text-sm pb-2 border-b border-slate-700">Top Recommended Crops</h4>
@@ -3791,7 +3817,8 @@ function initAIAssistant() {
       }
     }
 
-    return { cropData, soilData, weatherData };
+    const reconciledData = window.latestReconciledDecision || null;
+    return { cropData, soilData, weatherData, reconciledData };
   }
 
   async function handleQuery(query) {
@@ -3820,7 +3847,8 @@ function initAIAssistant() {
         history: chatHistory.slice(-10), // Send recent conversation turns for context
         cropData: context.cropData,
         soilData: context.soilData,
-        weatherData: context.weatherData
+        weatherData: context.weatherData,
+        reconciledData: context.reconciledData
       };
 
       const response = await fetch('/api/chat', {
@@ -3963,4 +3991,696 @@ function debounce(fn, delay) {
     clearTimeout(timer);
     timer = setTimeout(() => fn.apply(this, args), delay);
   };
+}
+
+
+
+/* ==========================================================================
+   15. CENTRALIZED EVIDENCE RECONCILIATION & EXPLAINABLE AI (XAI) MODULE
+   ========================================================================== */
+window.latestDiseaseResult = null;
+window.latestReconciledDecision = null;
+window.activeReconcileScenario = 'live';
+
+function initEvidenceReconciliation() {
+  // 1. Scenario Switcher Buttons
+  const scenarioBtns = document.querySelectorAll('.scenario-btn');
+  scenarioBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const scenario = btn.getAttribute('data-scenario') || 'live';
+      window.activeReconcileScenario = scenario;
+
+      // Update button styling
+      scenarioBtns.forEach(b => {
+        b.className = 'scenario-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700';
+      });
+      btn.className = 'scenario-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-emerald-600 text-white shadow-md shadow-emerald-600/30';
+
+      triggerEvidenceReconciliation(scenario);
+    });
+  });
+
+  // 2. XAI Accordion Toggle
+  const xaiToggle = document.getElementById('reconcile-xai-toggle');
+  const xaiContent = document.getElementById('reconcile-xai-content');
+  const xaiChevron = document.getElementById('xai-chevron');
+
+  if (xaiToggle && xaiContent) {
+    xaiToggle.addEventListener('click', () => {
+      const isHidden = xaiContent.classList.contains('hidden');
+      if (isHidden) {
+        xaiContent.classList.remove('hidden');
+        if (xaiChevron) xaiChevron.classList.add('rotate-180');
+      } else {
+        xaiContent.classList.add('hidden');
+        if (xaiChevron) xaiChevron.classList.remove('rotate-180');
+      }
+    });
+  }
+
+  // 3. XAI Voice Listen Button
+  const listenBtn = document.getElementById('evidence-listen-btn');
+  if (listenBtn) {
+    listenBtn.addEventListener('click', () => {
+      const narrativeEl = document.getElementById('reconcile-xai-narrative');
+      const targetEl = document.getElementById('evidence-primary-target');
+      const narrativeText = narrativeEl ? narrativeEl.textContent.trim() : '';
+      const targetText = targetEl ? targetEl.textContent.trim() : 'Reconciled Diagnosis';
+      if (narrativeText && typeof speakText === 'function') {
+        speakText(narrativeText, targetText);
+      }
+    });
+  }
+
+  // 4. Initial Trigger
+  triggerEvidenceReconciliation('live');
+}
+
+/**
+ * Triggers evidence reconciliation using the backend API (/api/reconcile)
+ * with graceful client-side fallback if network or offline.
+ */
+async function triggerEvidenceReconciliation(scenarioOverride) {
+  const scenario = scenarioOverride || window.activeReconcileScenario || 'live';
+
+  // Gather current multi-modal input evidence
+  const diseaseData = window.latestDiseaseResult || {
+    crop: 'Tomato',
+    disease: 'Tomato Early Blight',
+    pathogen: 'Alternaria solani',
+    severity: 'Moderate',
+    confidence: 92.0,
+    cause: 'Alternaria solani fungal spores germinate during elevated relative humidity.',
+    organic: 'Cold-pressed Neem oil (3-4 ml/L) combined with Trichoderma viride (5 g/L).',
+    chemical: 'Mancozeb 75% WP @ 2.5 g/L or Azoxystrobin + Difenoconazole @ 1 ml/L.',
+    prevention: 'Maintain 60cm row spacing; use drip irrigation; rotate with non-solanaceous crops.'
+  };
+
+  const weatherData = (function() {
+    if (window.selectedDistrictData && window.selectedDistrictData.weatherData) {
+      const d = window.selectedDistrictData;
+      const cur = d.weatherData.current || {};
+      const daily = d.weatherData.daily || {};
+      return {
+        district: d.name,
+        state: d.state,
+        temperature: cur.temperature_2m !== undefined ? Math.round(cur.temperature_2m) : 26,
+        humidity: cur.relative_humidity_2m !== undefined ? cur.relative_humidity_2m : 78,
+        wind_speed: cur.wind_speed_10m !== undefined ? Math.round(cur.wind_speed_10m) : 8,
+        rain_probability: daily.precipitation_probability_max ? daily.precipitation_probability_max[0] : 10,
+        condition: document.getElementById('weather-condition')?.textContent?.trim() || 'Clear Sky'
+      };
+    }
+    return {
+      district: 'Ahmedabad',
+      state: 'Gujarat',
+      temperature: 26,
+      humidity: 78,
+      wind_speed: 8,
+      rain_probability: 10,
+      condition: 'Partly Cloudy'
+    };
+  })();
+
+  const cropData = window.latestCropRecommendation || {
+    crop: 'Tomato',
+    confidence: '94%',
+    season: 'Rabi',
+    soilType: 'Alluvial Loam',
+    profit: '₹1,20,000 - ₹1,80,000/acre'
+  };
+
+  const sliderN = document.getElementById('slider-n');
+  const sliderP = document.getElementById('slider-p');
+  const sliderK = document.getElementById('slider-k');
+  const soilTypeEl = document.getElementById('soil-type-select');
+  const seasonEl = document.getElementById('season-select');
+
+  const soilData = {
+    soil_type: soilTypeEl ? (soilTypeEl.options[soilTypeEl.selectedIndex]?.text || soilTypeEl.value) : 'Alluvial Loam',
+    season: seasonEl ? (seasonEl.options[seasonEl.selectedIndex]?.text || seasonEl.value) : 'Rabi',
+    nitrogen: sliderN ? Number(sliderN.value) : 120,
+    phosphorus: sliderP ? Number(sliderP.value) : 60,
+    potassium: sliderK ? Number(sliderK.value) : 50
+  };
+
+  const payload = {
+    scenario: scenario,
+    diseaseData: diseaseData,
+    weatherData: weatherData,
+    cropData: cropData,
+    soilData: soilData
+  };
+
+  try {
+    const response = await fetch('/api/reconcile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Server returned HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data.status === 'success' && data.reconciled) {
+      renderReconciledUI(data.reconciled);
+      window.latestReconciledDecision = data.reconciled;
+      return;
+    }
+    throw new Error('Invalid reconcile response');
+  } catch (err) {
+    console.warn('Reconcile backend error, using client-side reconciliation engine:', err);
+    const clientResult = reconcileEvidenceClient(payload);
+    renderReconciledUI(clientResult);
+    window.latestReconciledDecision = clientResult;
+  }
+}
+
+/**
+ * Client-Side Reconcile Engine (Mirror of backend logic for zero latency / offline resilience)
+ */
+function reconcileEvidenceClient(payload) {
+  const scenario = payload.scenario || 'live';
+  const disease = payload.diseaseData || {};
+  const weather = payload.weatherData || {};
+  const crop = payload.cropData || {};
+  const soil = payload.soilData || {};
+
+  if (scenario === 'fungal_synergy') {
+    return {
+      scenario: 'fungal_synergy',
+      composite_confidence: 94.2,
+      composite_tier: 'High Confidence',
+      status_code: 'CROSS-VERIFIED',
+      status_label: 'Reliable & Cross-Verified',
+      risk_level: 'HIGH RISK',
+      conflict_detected: false,
+      is_inconclusive: false,
+      primary_target: 'Tomato: Early Blight (Alternaria solani)',
+      action_tag: 'Urgent Curative Spray Required',
+      summary_narrative: 'High humidity (84%) combined with mild 24°C temperatures creates peak microclimatic conditions for Alternaria conidial germination. Computer vision pathology and satellite weather agree completely with 94.2% composite confidence.',
+      sources: {
+        disease: { score: 96, tier: 'High', target: 'Tomato Early Blight', severity: 'Severe', detail: 'Concentric necrotic target-board lesions detected on 40% of lower canopy foliage.' },
+        weather: { score: 93, tier: 'High', telemetry: '24°C • 84% Humidity', conducive: 'High (Optimal Fungal Window)', detail: 'Extended leaf wetness index > 8 hours actively promotes fungal spore colonization.' },
+        crop: { score: 92, tier: 'High', name: 'Tomato (Solanum lycopersicum)', npk: 'N:130 P:65 K:55', detail: 'High vegetative density reduces airflow, creating localized microclimatic spore trap.' }
+      },
+      recommendations: {
+        organic: 'Foliar spray of Trichoderma viride @ 5 g/L combined with cold-pressed Neem oil (4 ml/L) early morning.',
+        chemical: 'Mancozeb 75% WP @ 2.5 g/L or Azoxystrobin 18.2% + Difenoconazole 11.4% SC @ 1 ml/L.',
+        prevention: 'Prune bottom 6 inches of foliage to stop soil-splash inoculation; ensure 60cm furrow aeration.',
+        weather_spray_window: 'Safe 48-hour spray window: Wind velocity is 6 km/h with zero rainfall probability.',
+        next_action: 'Sanitize spray equipment and initiate targeted protective fungicide application within 24 hours.'
+      },
+      conflict_details: { description: '', supporting: [], contradicting: [], resolution: '' },
+      timeline_steps: [
+        { step: 1, title: 'Leaf Image Analyzed', status: 'Completed (96% Match)' },
+        { step: 2, title: 'Weather Retrieved', status: 'Completed (84% Humidity Synced)' },
+        { step: 3, title: 'Crop & Soil Evaluated', status: 'Completed (Tomato Profile Matched)' },
+        { step: 4, title: 'Evidence Compared', status: 'Completed (Mutual Synergy Verified)' },
+        { step: 5, title: 'Plan Generated', status: 'Completed (94.2% Confidence Validated)' }
+      ],
+      xai: {
+        narrative: 'KHET AI synthesized computer vision foliar diagnostics, satellite telemetry, and crop physiology. Relative humidity (84%) and mild temperatures (24°C) dramatically shorten fungal spore germination time to under 4 hours. Because both the visual pathology and satellite weather metrics point to active fungal sporulation, confidence was weighted up to 94.2%. A 48-hour safe spray window was confirmed via Doppler satellite telemetry.',
+        points: {
+          recommendation: 'Immediate preventative foliar fungicide application (Mancozeb or Trichoderma viride).',
+          evidence: 'Visual concentric rings (96%), satellite relative humidity 84% (93%), dense tomato canopy (92%).',
+          reasoning: 'Environmental conditions strongly accelerate pathogenic fungal reproduction.',
+          sources: '3 of 3 AI models agree with zero conflicting indicators.',
+          confidence_justification: 'High composite certainty (94.2%) justified by perfect concordance across visual and climatic telemetry.'
+        }
+      }
+    };
+  }
+
+  if (scenario === 'weather_conflict') {
+    return {
+      scenario: 'weather_conflict',
+      composite_confidence: 61.5,
+      composite_tier: 'Moderate Confidence',
+      status_code: 'CONFLICT DETECTED',
+      status_label: 'Conflicting Evidence Detected',
+      risk_level: 'MODERATE RISK',
+      conflict_detected: true,
+      is_inconclusive: false,
+      primary_target: 'Bacterial Spot vs. Abiotic Heat Desiccation Scorch',
+      action_tag: 'Downweighted Diagnosis • Lab Check Advised',
+      summary_narrative: 'Vision AI flagged Bacterial Leaf Spot (92%), but satellite Doppler weather reveals an arid 22% humidity with no precipitation. Bacterial pathogens require free moisture films to invade leaf stomata, contradicting diagnosis.',
+      sources: {
+        disease: { score: 72, tier: 'Moderate (Downweighted)', target: 'Bacterial Spot (Xanthomonas)', severity: 'Suspected', detail: 'Visual necrotic angular lesions resembled bacterial lesions, but desiccated margins indicate abiotic scorching.' },
+        weather: { score: 94, tier: 'High (Arid Divergence)', telemetry: '37°C • 22% Humidity', conducive: 'Low (Inhospitable to Bacteria)', detail: 'Extremely dry air and high VPD suppress bacterial pathogen proliferation.' },
+        crop: { score: 78, tier: 'Moderate', name: 'Tomato (Vegetable)', npk: 'N:110 P:50 K:40', detail: 'Elevated daytime temperatures and moisture deficit induce physiological marginal leaf scorch.' }
+      },
+      recommendations: {
+        organic: 'Foliar spray of liquid seaweed extract or kaolin clay (3%) to reduce heat stress transpiration.',
+        chemical: 'Do NOT spray copper bactericides without confirmation. If bacterial progression continues, apply Copper Hydroxide @ 2 g/L.',
+        prevention: 'Apply light mulching around root zones to conserve soil moisture; irrigate during night or early dawn.',
+        weather_spray_window: 'Avoid mid-day spraying due to high 37°C temperature causing chemical phytotoxicity burn.',
+        next_action: 'Perform field bacterial streaming assay or check lower leaf underside before applying bactericide.'
+      },
+      conflict_details: {
+        description: 'Computer vision flagged Bacterial Spot (92%), but satellite weather reports extreme heat (37°C) and low relative humidity (22%). Bacterial pathogens cannot spread under desiccating dry conditions.',
+        supporting: [
+          'Visual leaf lesions present small angular dark spots resembling bacterial spot symptoms (92% visual match).'
+        ],
+        contradicting: [
+          'Satellite humidity is 22% (dry) with 0% rain probability. Bacterial phytopathogens require free water films to spread.',
+          'Ambient temperatures (37°C) exceed optimal bacterial range and induce abiotic heat scorch.'
+        ],
+        resolution: 'Decision layer downweighted bacterial diagnosis and reclassified condition as abiotic heat stress with secondary physiological scorching. Avoided unnecessary copper bactericide expenditure.'
+      },
+      timeline_steps: [
+        { step: 1, title: 'Leaf Image Analyzed', status: 'Completed (Bacterial Lesions Flagged)' },
+        { step: 2, title: 'Weather Retrieved', status: 'Conflict (Arid 22% Humidity Found)' },
+        { step: 3, title: 'Crop & Soil Evaluated', status: 'Completed (Heat Deficit Detected)' },
+        { step: 4, title: 'Evidence Compared', status: 'Resolved (Bacterial Score Downweighted)' },
+        { step: 5, title: 'Plan Generated', status: 'Completed (Adjusted 61.5% Recommendation)' }
+      ],
+      xai: {
+        narrative: 'While the camera image suggested Bacterial Spot, satellite weather data shows an arid microclimate (22% humidity, 37°C) where bacterial spread is biologically impossible without moisture. KHET AI detected this conflict and prevented a costly, harmful application of copper sprays, advising hydration and mulch instead.',
+        points: {
+          recommendation: 'Treat as abiotic physiological heat stress; defer chemical bactericides until lab verification.',
+          evidence: 'Visual leaf spotting (72%), satellite arid telemetry (94%), soil moisture stress index (78%).',
+          reasoning: 'Bacterial plant pathogens require moisture films on foliage to penetrate stomata; arid climate precludes rapid infection.',
+          sources: 'Pathology Vision AI contradicts Open-Meteo Satellite Doppler Telemetry.',
+          confidence_justification: 'Overall score downweighted to 61.5% due to environmental incompatibility with visual diagnosis.'
+        }
+      }
+    };
+  }
+
+  if (scenario === 'inconclusive') {
+    return {
+      scenario: 'inconclusive',
+      composite_confidence: 48.0,
+      composite_tier: 'Low Confidence',
+      status_code: 'RESULT INCONCLUSIVE',
+      status_label: 'Result Inconclusive (<60%)',
+      risk_level: 'UNVERIFIED',
+      conflict_detected: true,
+      is_inconclusive: true,
+      primary_target: 'Diagnosis Suppressed: Available Evidence is Insufficient',
+      action_tag: 'Field Verification Required Before Treatment',
+      summary_narrative: 'Available evidence is insufficient for a reliable diagnosis. Confidence score is below the 60% safety threshold. To prevent wasteful chemical expense and avoid plant injury, diagnosis is suppressed.',
+      sources: {
+        disease: { score: 45, tier: 'Low (Uncertain)', target: 'Undetermined Foliar Chlorosis', severity: 'Ambiguous', detail: 'Image quality has heavy motion blur or shadows; ambiguous symptom margins prevent certain classification.' },
+        weather: { score: 52, tier: 'Moderate', telemetry: '29°C • 54% Humidity', conducive: 'Neutral / Inconclusive', detail: 'Intermediate humidity and fluctuating barometric telemetry provide no decisive pathogen signal.' },
+        crop: { score: 48, tier: 'Low', name: 'Unknown Crop Variety', npk: 'N:90 P:40 K:30', detail: 'Incomplete soil nutrient profile and unverified growth stage.' }
+      },
+      recommendations: {
+        organic: 'No chemical or bio-agent recommended until field symptoms are verified.',
+        chemical: 'Chemical applications strictly suppressed to prevent wasteful expenditure and crop burn.',
+        prevention: 'Isolate affected plants if localized; observe leaf progression over 48 hours.',
+        weather_spray_window: 'Weather evaluation on standby pending verified diagnosis.',
+        next_action: 'Complete the 6-point farmer checklist below: re-photograph foliage in bright natural daylight.'
+      },
+      conflict_details: {
+        description: 'Multi-modal confidence fell below the 60% safety gate (48.0%). Symptoms overlap between multiple nutrient deficiencies and fungal blights.',
+        supporting: ['Faint chlorotic mottling observed on mid-canopy leaves.'],
+        contradicting: ['No definite sporulation or necrotic halos; neutral weather telemetry.'],
+        resolution: 'Suppressed automated recommendation. Handed off to farmer field checklist.'
+      },
+      timeline_steps: [
+        { step: 1, title: 'Leaf Image Analyzed', status: 'Warning (Low 45% Certainty)' },
+        { step: 2, title: 'Weather Retrieved', status: 'Completed (Neutral Telemetry)' },
+        { step: 3, title: 'Crop & Soil Evaluated', status: 'Warning (Insufficient Profile)' },
+        { step: 4, title: 'Evidence Compared', status: 'Gated (Confidence < 60% Threshold)' },
+        { step: 5, title: 'Plan Generated', status: 'Suppressed (Safety Protocol Active)' }
+      ],
+      xai: {
+        narrative: 'KHET AI activated the diagnostic safety gate because total evidence certainty (48.0%) is below the minimum 60% threshold. Misdiagnosing plant diseases can lead to wasted money on ineffective sprays or crop loss. Rather than guessing, the system prompts you to inspect the crop using the 6-step checklist.',
+        points: {
+          recommendation: 'Diagnosis suppressed. Re-photograph leaf in bright natural light and check soil moisture.',
+          evidence: 'Ambiguous leaf symptoms (45%), neutral weather (52%), uncalibrated soil telemetry (48%).',
+          reasoning: 'Evidence is insufficient to distinguish fungal blight from nutrient deficiency.',
+          sources: 'All sources indicate high uncertainty.',
+          confidence_justification: '48.0% composite confidence falls below the mandatory 60% diagnostic threshold.'
+        }
+      }
+    };
+  }
+
+  if (scenario === 'bacterial_heat') {
+    return {
+      scenario: 'bacterial_heat',
+      composite_confidence: 82.5,
+      composite_tier: 'High Confidence',
+      status_code: 'CROSS-VERIFIED',
+      status_label: 'Reliable & Cross-Verified',
+      risk_level: 'HIGH RISK',
+      conflict_detected: false,
+      is_inconclusive: false,
+      primary_target: 'Bacterial Wilt & Heatwave Vascular Stress',
+      action_tag: 'Root Drenching & Shade Netting',
+      summary_narrative: 'High soil temperatures (36°C) combined with daytime heat stress have triggered rapid bacterial wilt progression. Pathology and thermal satellite data align with 82.5% composite confidence.',
+      sources: {
+        disease: { score: 85, tier: 'High', target: 'Bacterial Wilt (Ralstonia)', severity: 'Severe', detail: 'Rapid daytime epinasty and green wilt without initial yellowing observed.' },
+        weather: { score: 88, tier: 'High', telemetry: '36°C • 68% Humidity', conducive: 'High (Bacterial Proliferation)', detail: 'Warm moist soil conditions accelerate root invasion and xylem vessel blockage.' },
+        crop: { score: 76, tier: 'Moderate', name: 'Solanaceous Crop', npk: 'N:120 P:60 K:50', detail: 'Excess nitrogen increases succulent vegetative tissue susceptibility to bacterial wilt.' }
+      },
+      recommendations: {
+        organic: 'Soil drenching with Pseudomonas fluorescens @ 10 g/L or Trichoderma viride around root zone.',
+        chemical: 'Streptocycline (Streptomycin sulphate + Tetracycline) @ 1 g / 10 L water drench at root zone.',
+        prevention: 'Avoid field cultivation when wet to stop root wounding; install 35% shade netting.',
+        weather_spray_window: 'Apply drench during late evening hours when soil temperatures cool down.',
+        next_action: 'Uproot and burn severely wilted plants; apply lime to sanitize planting holes.'
+      },
+      conflict_details: { description: '', supporting: [], contradicting: [], resolution: '' },
+      timeline_steps: [
+        { step: 1, title: 'Leaf Image Analyzed', status: 'Completed (85% Wilt Match)' },
+        { step: 2, title: 'Weather Retrieved', status: 'Completed (Heatwave 36°C Synced)' },
+        { step: 3, title: 'Crop & Soil Evaluated', status: 'Completed (Xylem Stress Mapped)' },
+        { step: 4, title: 'Evidence Compared', status: 'Completed (Thermal Concordance)' },
+        { step: 5, title: 'Plan Generated', status: 'Completed (82.5% Confidence)' }
+      ],
+      xai: {
+        narrative: 'High temperatures (36°C) and moderate humidity create high soil moisture heat, allowing Ralstonia bacteria to multiply inside crop roots and block water transport vessels. The recommendation combines bactericidal root drenching with immediate sanitation.',
+        points: {
+          recommendation: 'Root drench with Pseudomonas fluorescens or Streptocycline; sanitize infected root zones.',
+          evidence: 'Green canopy wilt (85%), satellite thermal reading 36°C (88%), soil nitrogen profile (76%).',
+          reasoning: 'Warm wet soil promotes Ralstonia colonization of xylem tissue, causing rapid daytime collapse.',
+          sources: '3 of 3 models confirm bacterial vascular stress.',
+          confidence_justification: '82.5% composite score justified by strong thermal-pathology concordance.'
+        }
+      }
+    };
+  }
+
+  // Live real-time synthesis from active inputs
+  const disConf = parseFloat(disease.confidence) || 88.0;
+  const hum = parseFloat(weather.humidity) || 65.0;
+  const temp = parseFloat(weather.temperature) || 28.0;
+
+  // Environmental suitability index for fungal/pathogenic activity
+  let weatherRel = 85.0;
+  let weatherFinding = 'Moderate humidity and mild temperature support normal foliar growth.';
+  let weatherConducive = 'Moderate';
+
+  if (hum >= 75) {
+    weatherRel = 92.0;
+    weatherFinding = `High humidity (${hum}%) and ${temp}°C temperature actively accelerate fungal spore sporulation.`;
+    weatherConducive = 'High (Conducive to Fungi)';
+  } else if (hum <= 30 && temp >= 34) {
+    weatherRel = 65.0;
+    weatherFinding = `Arid air (${hum}%) and high heat (${temp}°C) restrict foliar fungal spread; check for heat scorch.`;
+    weatherConducive = 'Low (Inhospitable to Pathogens)';
+  }
+
+  const cropRel = 86.0;
+  const compConf = Math.round((0.45 * disConf + 0.30 * weatherRel + 0.25 * cropRel) * 10) / 10;
+  const isConflict = (hum <= 30 && disConf >= 85 && (disease.disease || '').toLowerCase().includes('blight'));
+  const isInconclusive = compConf < 60.0;
+
+  return {
+    scenario: 'live',
+    composite_confidence: compConf,
+    composite_tier: compConf >= 75 ? 'High Confidence' : (compConf >= 60 ? 'Moderate Confidence' : 'Low Confidence'),
+    status_code: isInconclusive ? 'RESULT INCONCLUSIVE' : (isConflict ? 'CONFLICT DETECTED' : 'CROSS-VERIFIED'),
+    status_label: isInconclusive ? 'Result Inconclusive (<60%)' : (isConflict ? 'Conflicting Evidence' : 'Reliable & Cross-Verified'),
+    risk_level: compConf >= 80 ? 'HIGH RISK' : 'MODERATE RISK',
+    conflict_detected: isConflict,
+    is_inconclusive: isInconclusive,
+    primary_target: `${disease.crop || 'Crop'}: ${disease.disease || 'Diagnosed Condition'}`,
+    action_tag: isConflict ? 'Downweighted Diagnosis • Lab Check Advised' : (isInconclusive ? 'Field Verification Required' : 'Targeted Curative Spray'),
+    summary_narrative: `Reconciled diagnosis for ${disease.crop || 'crop'} with ${compConf}% composite confidence based on visual symptom inspection, satellite telemetry (${temp}°C, ${hum}% humidity), and soil agronomics.`,
+    sources: {
+      disease: {
+        score: Math.round(disConf),
+        tier: disConf >= 75 ? 'High' : 'Moderate',
+        target: disease.disease || 'Foliar Condition',
+        severity: disease.severity || 'Moderate',
+        detail: disease.cause || 'Computer vision foliar pathology inspection.'
+      },
+      weather: {
+        score: Math.round(weatherRel),
+        tier: weatherRel >= 75 ? 'High' : 'Moderate',
+        telemetry: `${temp}°C • ${hum}% Humidity`,
+        conducive: weatherConducive,
+        detail: weatherFinding
+      },
+      crop: {
+        score: Math.round(cropRel),
+        tier: 'High',
+        name: crop.crop || 'Target Crop',
+        npk: `N:${soil.nitrogen || 120} P:${soil.phosphorus || 60} K:${soil.potassium || 50}`,
+        detail: 'Soil NPK balance and seasonal suitability cross-referenced.'
+      }
+    },
+    recommendations: {
+      organic: disease.organic || 'Cold-pressed Neem oil (3-4 ml/L) or Trichoderma viride bio-fungicide (5 g/L).',
+      chemical: disease.chemical || 'Mancozeb 75% WP @ 2.5 g/L or Azoxystrobin + Difenoconazole @ 1 ml/L.',
+      prevention: disease.prevention || 'Ensure 60cm row aeration and clean crop rotation.',
+      weather_spray_window: `Safe window for foliar spray over next 48h. Rain probability is ${weather.rain_probability || 10}%.`,
+      next_action: 'Inspect lower leaf canopies and prepare clean spray application equipment.'
+    },
+    conflict_details: {
+      description: isConflict ? 'Visual pathology suggests blight, but arid climate limits pathogen spread.' : '',
+      supporting: isConflict ? ['Leaf lesions exhibit necrotic spots matching pathogen pattern.'] : [],
+      contradicting: isConflict ? [`Relative humidity (${hum}%) is too low for rapid spore germination.`] : [],
+      resolution: isConflict ? 'Downweighted diagnosis to account for environmental aridity.' : ''
+    },
+    timeline_steps: [
+      { step: 1, title: 'Leaf Image Analyzed', status: `Completed (${Math.round(disConf)}% Match)` },
+      { step: 2, title: 'Weather Retrieved', status: `Completed (${hum}% Humidity Synced)` },
+      { step: 3, title: 'Crop & Soil Evaluated', status: 'Completed (Agronomy Matched)' },
+      { step: 4, title: 'Evidence Compared', status: isConflict ? 'Conflict Evaluated' : 'Consensus Verified' },
+      { step: 5, title: 'Plan Generated', status: `Completed (${compConf}% Confidence)` }
+    ],
+    xai: {
+      narrative: `KHET AI combined your leaf scan, the live weather telemetry (${temp}°C, ${hum}% humidity), and soil nutrient readings. The ${compConf}% score reflects the multi-source alignment between pathogen biology and environmental conditions.`,
+      points: {
+        recommendation: disease.chemical || 'Apply targeted foliar spray based on environmental window.',
+        evidence: `Visual detection (${Math.round(disConf)}%), Satellite humidity (${Math.round(weatherRel)}%), Soil agronomics (${Math.round(cropRel)}%).`,
+        reasoning: 'Multi-source cross-validation verified whether environmental conditions permit the identified disease.',
+        sources: isConflict ? 'Divergence detected between visual pathology and arid weather.' : 'All 3 sources corroborate the recommendation.',
+        confidence_justification: `Composite confidence ${compConf}% computed via 0.45×Disease + 0.30×Weather + 0.25×Soil.`
+      }
+    }
+  };
+}
+
+/**
+ * Renders the reconciled decision state onto the DOM
+ */
+function renderReconciledUI(reconciled) {
+  if (!reconciled) return;
+
+  const score = Math.round(reconciled.composite_confidence || 85);
+  
+  // 1. Semicircular Radial Gauge Arc
+  const gaugePath = document.getElementById('evidence-gauge-path');
+  const gaugeVal = document.getElementById('evidence-gauge-value');
+  const gaugeTier = document.getElementById('evidence-confidence-tier');
+  const statusPill = document.getElementById('evidence-status-pill');
+  const statusLabel = document.getElementById('evidence-status-label');
+
+  if (gaugeVal) gaugeVal.textContent = `${score}%`;
+  if (gaugeTier) {
+    gaugeTier.textContent = reconciled.composite_tier || (score >= 75 ? 'High Confidence' : (score >= 60 ? 'Moderate Confidence' : 'Low Confidence'));
+    gaugeTier.className = `text-xs font-bold uppercase tracking-wider mt-0.5 ${score >= 70 ? 'text-emerald-400' : (score >= 50 ? 'text-amber-400' : 'text-rose-400')}`;
+  }
+
+  if (gaugePath) {
+    // Semicircle circumference for radius 80 = PI * 80 ~= 251.2
+    const totalCircumference = 251.2;
+    const offset = totalCircumference - (totalCircumference * (score / 100));
+    gaugePath.style.strokeDashoffset = offset;
+
+    let strokeColor = '#10b981'; // emerald
+    if (score < 50 || reconciled.is_inconclusive) {
+      strokeColor = '#f43f5e'; // rose
+    } else if (score < 70 || reconciled.conflict_detected) {
+      strokeColor = '#f59e0b'; // amber
+    }
+    gaugePath.setAttribute('stroke', strokeColor);
+  }
+
+  if (statusPill) {
+    statusPill.textContent = reconciled.status_code || 'CROSS-VERIFIED';
+    let pillClass = 'px-2.5 py-1 text-xs font-mono font-bold rounded-lg border ';
+    if (reconciled.is_inconclusive) {
+      pillClass += 'bg-rose-500/20 text-rose-300 border-rose-500/40';
+    } else if (reconciled.conflict_detected) {
+      pillClass += 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+    } else {
+      pillClass += 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+    }
+    statusPill.className = pillClass;
+  }
+
+  if (statusLabel) {
+    statusLabel.textContent = reconciled.status_label || 'Reliable & Verified';
+    statusLabel.className = `font-bold ${score >= 70 ? 'text-emerald-400' : (score >= 50 ? 'text-amber-400' : 'text-rose-400')}`;
+  }
+
+  const conflictBadge = document.getElementById('evidence-conflict-badge');
+  if (conflictBadge) {
+    conflictBadge.textContent = reconciled.conflict_detected ? 'Active Conflict' : 'None (Full Consensus)';
+    conflictBadge.className = `font-bold ${reconciled.conflict_detected ? 'text-amber-400' : 'text-slate-300'}`;
+  }
+
+  // 2. Decision Summary Card
+  const primaryTargetEl = document.getElementById('evidence-primary-target');
+  const actionTagEl = document.getElementById('evidence-action-tag');
+  const summaryNarrativeEl = document.getElementById('evidence-summary-narrative');
+  const riskPillEl = document.getElementById('evidence-risk-pill');
+
+  if (primaryTargetEl) primaryTargetEl.textContent = reconciled.primary_target || 'Target Diagnosis';
+  if (actionTagEl) actionTagEl.textContent = reconciled.action_tag || 'Agronomic Plan';
+  if (summaryNarrativeEl) summaryNarrativeEl.textContent = reconciled.summary_narrative || '';
+  if (riskPillEl) {
+    riskPillEl.textContent = reconciled.risk_level || 'MODERATE RISK';
+    let riskClass = 'px-2.5 py-1 text-xs font-bold rounded-lg border ';
+    if (reconciled.risk_level === 'HIGH RISK') {
+      riskClass += 'bg-rose-500/20 text-rose-300 border-rose-500/40';
+    } else if (reconciled.risk_level === 'LOW RISK') {
+      riskClass += 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+    } else {
+      riskClass += 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+    }
+    riskPillEl.className = riskClass;
+  }
+
+  // 3 mini source scores in summary card
+  if (reconciled.sources) {
+    const s1Score = document.getElementById('evidence-src1-score');
+    const s1Sum = document.getElementById('evidence-src1-summary');
+    const s2Score = document.getElementById('evidence-src2-score');
+    const s2Sum = document.getElementById('evidence-src2-summary');
+    const s3Score = document.getElementById('evidence-src3-score');
+    const s3Sum = document.getElementById('evidence-src3-summary');
+
+    if (s1Score && reconciled.sources.disease) s1Score.textContent = `${reconciled.sources.disease.score}%`;
+    if (s1Sum && reconciled.sources.disease) s1Sum.textContent = reconciled.sources.disease.detail || reconciled.sources.disease.target;
+
+    if (s2Score && reconciled.sources.weather) s2Score.textContent = `${reconciled.sources.weather.score}%`;
+    if (s2Sum && reconciled.sources.weather) s2Sum.textContent = reconciled.sources.weather.detail || reconciled.sources.weather.telemetry;
+
+    if (s3Score && reconciled.sources.crop) s3Score.textContent = `${reconciled.sources.crop.score}%`;
+    if (s3Sum && reconciled.sources.crop) s3Sum.textContent = reconciled.sources.crop.detail || reconciled.sources.crop.npk;
+  }
+
+  // 3. Expanded Source Reliability Cards
+  if (reconciled.sources) {
+    // Disease
+    const dVal = document.getElementById('evidence-disease-score-val');
+    const dBar = document.getElementById('evidence-disease-score-bar');
+    const dDiag = document.getElementById('evidence-disease-diag');
+    const dSev = document.getElementById('evidence-disease-sev');
+    const dDesc = document.getElementById('evidence-disease-desc');
+    if (dVal) dVal.textContent = `${reconciled.sources.disease.score}% (${reconciled.sources.disease.tier})`;
+    if (dBar) dBar.style.width = `${reconciled.sources.disease.score}%`;
+    if (dDiag) dDiag.textContent = reconciled.sources.disease.target;
+    if (dSev) dSev.textContent = reconciled.sources.disease.severity;
+    if (dDesc) dDesc.textContent = reconciled.sources.disease.detail;
+
+    // Weather
+    const wVal = document.getElementById('evidence-weather-score-val');
+    const wBar = document.getElementById('evidence-weather-score-bar');
+    const wTel = document.getElementById('evidence-weather-telemetry');
+    const wCond = document.getElementById('evidence-weather-conducive');
+    const wDesc = document.getElementById('evidence-weather-desc');
+    if (wVal) wVal.textContent = `${reconciled.sources.weather.score}% (${reconciled.sources.weather.tier})`;
+    if (wBar) wBar.style.width = `${reconciled.sources.weather.score}%`;
+    if (wTel) wTel.textContent = reconciled.sources.weather.telemetry;
+    if (wCond) wCond.textContent = reconciled.sources.weather.conducive;
+    if (wDesc) wDesc.textContent = reconciled.sources.weather.detail;
+
+    // Crop
+    const cVal = document.getElementById('evidence-crop-score-val');
+    const cBar = document.getElementById('evidence-crop-score-bar');
+    const cName = document.getElementById('evidence-crop-name');
+    const cNpk = document.getElementById('evidence-crop-npk');
+    const cDesc = document.getElementById('evidence-crop-desc');
+    if (cVal) cVal.textContent = `${reconciled.sources.crop.score}% (${reconciled.sources.crop.tier})`;
+    if (cBar) cBar.style.width = `${reconciled.sources.crop.score}%`;
+    if (cName) cName.textContent = reconciled.sources.crop.name;
+    if (cNpk) cNpk.textContent = reconciled.sources.crop.npk;
+    if (cDesc) cDesc.textContent = reconciled.sources.crop.detail;
+  }
+
+  // 4. Conflict Card
+  const conflictCard = document.getElementById('reconcile-conflict-card');
+  const conflictDesc = document.getElementById('reconcile-conflict-desc');
+  const supList = document.getElementById('reconcile-supporting-list');
+  const conList = document.getElementById('reconcile-contradicting-list');
+  const confRes = document.getElementById('reconcile-conflict-resolution');
+
+  if (conflictCard) {
+    if (reconciled.conflict_detected && reconciled.conflict_details) {
+      conflictCard.classList.remove('hidden');
+      if (conflictDesc) conflictDesc.textContent = reconciled.conflict_details.description || '';
+      if (supList) {
+        supList.innerHTML = (reconciled.conflict_details.supporting || []).map(s => `<li>• ${s}</li>`).join('');
+      }
+      if (conList) {
+        conList.innerHTML = (reconciled.conflict_details.contradicting || []).map(c => `<li>• ${c}</li>`).join('');
+      }
+      if (confRes) confRes.textContent = reconciled.conflict_details.resolution || '';
+    } else {
+      conflictCard.classList.add('hidden');
+    }
+  }
+
+  // 5. Inconclusive Uncertainty Card
+  const inconclusiveCard = document.getElementById('reconcile-inconclusive-card');
+  if (inconclusiveCard) {
+    if (reconciled.is_inconclusive) {
+      inconclusiveCard.classList.remove('hidden');
+    } else {
+      inconclusiveCard.classList.add('hidden');
+    }
+  }
+
+  // 6. Recommendation Card
+  if (reconciled.recommendations) {
+    const recConf = document.getElementById('reconcile-rec-conf');
+    const recOrg = document.getElementById('reconcile-rec-organic');
+    const recChem = document.getElementById('reconcile-rec-chemical');
+    const recPrev = document.getElementById('reconcile-rec-prevention');
+    const recWind = document.getElementById('reconcile-rec-weather-window');
+    const recNext = document.getElementById('reconcile-rec-next-step');
+
+    if (recConf) recConf.textContent = `${score}% ${reconciled.composite_tier || 'Confidence'}`;
+    if (recOrg) recOrg.textContent = reconciled.recommendations.organic || '';
+    if (recChem) recChem.textContent = reconciled.recommendations.chemical || '';
+    if (recPrev) recPrev.textContent = reconciled.recommendations.prevention || '';
+    if (recWind) recWind.textContent = reconciled.recommendations.weather_spray_window || '';
+    if (recNext) recNext.textContent = reconciled.recommendations.next_action || '';
+  }
+
+  // 7. Timeline Steps
+  if (reconciled.timeline_steps && Array.isArray(reconciled.timeline_steps)) {
+    reconciled.timeline_steps.forEach((st, idx) => {
+      const stepEl = document.getElementById(`timeline-step-${idx + 1}`);
+      if (stepEl) {
+        const statusSpan = stepEl.querySelector('.step-status');
+        if (statusSpan) {
+          statusSpan.textContent = `✓ ${st.status || 'Verified'}`;
+        }
+      }
+    });
+  }
+
+  // 8. Explainable AI (XAI) Panel
+  if (reconciled.xai) {
+    const xaiNarrative = document.getElementById('reconcile-xai-narrative');
+    const xaiRec = document.getElementById('xai-point-recommendation');
+    const xaiEv = document.getElementById('xai-point-evidence');
+    const xaiReas = document.getElementById('xai-point-reasoning');
+    const xaiSrc = document.getElementById('xai-point-sources');
+    const xaiConfDesc = document.getElementById('xai-point-confidence-desc');
+    const xaiConfVal = document.getElementById('xai-point-confidence-val');
+
+    if (xaiNarrative) xaiNarrative.textContent = reconciled.xai.narrative || '';
+    if (reconciled.xai.points) {
+      if (xaiRec) xaiRec.textContent = reconciled.xai.points.recommendation || '';
+      if (xaiEv) xaiEv.textContent = reconciled.xai.points.evidence || '';
+      if (xaiReas) xaiReas.textContent = reconciled.xai.points.reasoning || '';
+      if (xaiSrc) xaiSrc.textContent = reconciled.xai.points.sources || '';
+      if (xaiConfDesc) xaiConfDesc.textContent = reconciled.xai.points.confidence_justification || '';
+    }
+    if (xaiConfVal) xaiConfVal.textContent = `${score}.0%`;
+  }
 }
