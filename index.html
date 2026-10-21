@@ -1,0 +1,2207 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khet AI - AI-Powered Smart Farming for a Sustainable Future</title>
+  <meta name="description" content="Khet AI empowers farmers with Artificial Intelligence, computer vision crop disease detection, hyperlocal weather analytics, intelligent crop recommendation, and live mandi market prices.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2322C55E'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z'/%3E%3C/svg%3E">
+
+  <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN with Custom Theme Config -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'khet-green': '#22C55E',
+            'khet-dark': '#14532D',
+            'khet-forest': '#064E3B',
+            'khet-emerald': '#10B981',
+            'khet-sky': '#0EA5E9',
+            'khet-mint': '#ECFDF5',
+            'khet-light': '#F8FAFC'
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            heading: ['Outfit', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Chart.js for Interactive Weather & Market Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-green-500 selection:text-white">
+
+  <!-- ========================================================================
+       STICKY NAVIGATION BAR
+       ======================================================================== -->
+  <header id="main-nav" class="sticky top-0 z-50 transition-all duration-300 bg-white/85 backdrop-blur-md border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        
+        <!-- Logo & Brand Name -->
+        <a href="#hero" class="flex items-center gap-3 group">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-green-600 to-emerald-400 p-2 shadow-md shadow-green-500/25 flex items-center justify-center transform group-hover:scale-105 transition-all">
+            <!-- Custom Sprout + AI Circuit SVG -->
+            <svg class="w-full h-full text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 20h10" />
+              <path d="M10 20c0-3.5 1.5-6.5 4-8" />
+              <path d="M14 12c-2.5-1.5-4-4.5-4-8 4.5 0 8 3.5 8 8 0 2-.5 3.5-1.5 5" />
+              <circle cx="14" cy="4" r="1.5" fill="currentColor" />
+              <circle cx="18" cy="12" r="1.5" fill="currentColor" />
+              <circle cx="10" cy="12" r="1.5" fill="currentColor" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-2xl font-black font-heading tracking-tight text-slate-900">Khet<span class="text-green-600">AI</span></span>
+              <span class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-800 rounded-md border border-green-200">PRO</span>
+            </div>
+            <p class="text-[10px] font-medium tracking-wide text-slate-500 uppercase -mt-1">Smart Farming Platform</p>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden xl:flex items-center space-x-6 text-sm font-medium text-slate-600 dark:text-slate-300">
+          <a href="#hero" class="nav-link active hover:text-green-600 py-1" data-i18n="nav_home">Home</a>
+          <a href="#features" class="nav-link hover:text-green-600 py-1" data-i18n="nav_features">Features</a>
+          <a href="#disease-detection" class="nav-link hover:text-green-600 py-1" data-i18n="nav_detector">Disease Detection</a>
+          <a href="#weather" class="nav-link hover:text-green-600 py-1" data-i18n="nav_weather">Weather</a>
+          <a href="#crop-recommendation" class="nav-link hover:text-green-600 py-1" data-i18n="nav_recommendation">Recommendation</a>
+          <a href="#crop-guide" class="nav-link hover:text-green-600 py-1" data-i18n="nav_guide">Crop Guide</a>
+          <a href="#subsidy-checker" class="nav-link hover:text-green-600 py-1" data-i18n="nav_subsidies">Farmer Subsidies</a>
+          <a href="#market-prices" class="nav-link hover:text-green-600 py-1" data-i18n="nav_market">Market Prices</a>
+          <a href="#ai-assistant" class="nav-link hover:text-green-600 py-1" data-i18n="nav_assistant">AI Assistant</a>
+          <a href="#contact" class="nav-link hover:text-green-600 py-1" data-i18n="nav_contact">Contact</a>
+        </nav>
+
+        <!-- Right Side: Theme Toggle + Language Selector + CTA Button -->
+        <div class="hidden lg:flex items-center space-x-3">
+          <!-- Dark/Light Theme Toggle -->
+          <button type="button" class="theme-toggle-btn p-2 rounded-xl text-slate-600 hover:text-green-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-all text-base border border-slate-200/80 dark:border-slate-700" aria-label="Toggle Theme" title="Toggle Theme">
+            🌙
+          </button>
+
+          <!-- Language Selector -->
+          <div class="relative">
+            <select id="lang-select" class="lang-select-input appearance-none bg-slate-100/90 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300/80 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 py-2 pl-3 pr-7 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 cursor-pointer transition-all">
+              <option value="en">🌐 English</option>
+              <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
+              <option value="mr">🌱 मराठी (Marathi)</option>
+              <option value="pa">🌾 ਪੰਜਾਬੀ (Punjabi)</option>
+              <option value="gu">🦁 ગુજરાતી (Gujarati)</option>
+              <option value="bn">🌾 বাংলা (Bengali)</option>
+              <option value="te">🌿 తెలుగు (Telugu)</option>
+              <option value="ta">🌴 தமிழ் (Tamil)</option>
+              <option value="kn">🍃 ಕನ್ನಡ (Kannada)</option>
+              <option value="ml">🥥 മലയാളം (Malayalam)</option>
+              <option value="or">🌾 ଓଡ଼ିଆ (Odia)</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+              <svg class="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+            </div>
+          </div>
+
+          <a href="#dashboard-preview" class="btn-primary-gradient px-5 py-2.5 rounded-xl text-white font-semibold text-xs tracking-wide uppercase inline-flex items-center gap-1.5 shadow-sm">
+            <span data-i18n="nav_explore_app">Explore App</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </a>
+        </div>
+
+        <!-- Mobile Menu Hamburger Button -->
+        <div class="flex xl:hidden items-center space-x-2">
+          <button id="mobile-menu-btn" class="p-2.5 rounded-xl text-slate-600 hover:text-green-600 hover:bg-green-50 focus:outline-none transition-all">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer Menu -->
+    <div id="mobile-menu" class="hidden xl:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800 px-4 pt-3 pb-6 space-y-2 shadow-2xl transition-all">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Navigation Menu</span>
+        <div class="flex items-center gap-2">
+          <button type="button" class="theme-toggle-btn p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" aria-label="Toggle Theme">
+            🌙
+          </button>
+          <select id="mobile-lang-select" class="lang-select-input text-xs bg-slate-100 dark:bg-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 font-semibold text-slate-700">
+              <option value="en">🌐 English</option>
+              <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
+              <option value="mr">🌱 मराठी (Marathi)</option>
+              <option value="pa">🌾 ਪੰਜਾਬੀ (Punjabi)</option>
+              <option value="gu">🦁 ગુજરાતી (Gujarati)</option>
+              <option value="bn">🌾 বাংলা (Bengali)</option>
+              <option value="te">🌿 తెలుగు (Telugu)</option>
+              <option value="ta">🌴 தமிழ் (Tamil)</option>
+              <option value="kn">🍃 ಕನ್ನಡ (Kannada)</option>
+              <option value="ml">🥥 മലയാളം (Malayalam)</option>
+              <option value="or">🌾 ଓଡ଼ିଆ (Odia)</option>
+          </select>
+        </div>
+      </div>
+      <a href="#hero" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-green-50 hover:text-green-600 dark:hover:bg-slate-800" data-i18n="nav_home">Home</a>
+      <a href="#features" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-green-50 hover:text-green-600 dark:hover:bg-slate-800" data-i18n="nav_features">Features</a>
+      <a href="#disease-detection" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-green-50 hover:text-green-600 dark:hover:bg-slate-800" data-i18n="nav_detector">Crop Disease Detection</a>
+      <a href="#weather" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-green-50 hover:text-green-600 dark:hover:bg-slate-800" data-i18n="nav_weather">Weather Forecast</a>
+      <a href="#crop-recommendation" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-green-50 hover:text-green-600 dark:hover:bg-slate-800" data-i18n="nav_recommendation">Crop Recommendation</a>
+      <a href="#crop-guide" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-green-50 hover:text-green-600 dark:hover:bg-slate-800" data-i18n="nav_guide">Crop Guide</a>
+      <a href="#market-prices" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-green-50 hover:text-green-600 dark:hover:bg-slate-800" data-i18n="nav_market">Market Prices</a>
+      <a href="#ai-assistant" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-green-50 hover:text-green-600 dark:hover:bg-slate-800" data-i18n="nav_assistant">AI Assistant</a>
+      <a href="#contact" class="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-green-50 hover:text-green-600 dark:hover:bg-slate-800" data-i18n="nav_contact">Contact</a>
+      <div class="pt-2">
+        <a href="#dashboard-preview" class="w-full btn-primary-gradient py-2.5 rounded-xl text-white font-semibold text-center text-sm block" data-i18n="nav_explore_app">Launch Smart Dashboard</a>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- ========================================================================
+       HERO SECTION WITH ANIMATED FLOATING CARDS & RICH ILLUSTRATION
+       ======================================================================== -->
+  <section id="hero" class="relative pt-12 pb-24 md:pt-20 md:pb-32 overflow-hidden gradient-hero-bg">
+    <!-- Background Decorative Radials -->
+    <div class="absolute top-10 left-1/2 -translate-x-1/2 w-[1000px] h-[550px] bg-gradient-to-b from-green-200/35 via-emerald-100/20 to-transparent blur-3xl pointer-events-none -z-10 rounded-full"></div>
+    <div class="absolute -top-24 right-0 w-96 h-96 bg-sky-200/40 blur-3xl pointer-events-none -z-10 rounded-full"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        
+        <!-- Left Hero Content -->
+        <div class="lg:col-span-6 space-y-6 text-center lg:text-left">
+          
+          <!-- Announcement Pill -->
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 shadow-sm">
+            <span class="flex h-2 w-2 relative">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            <span class="text-xs font-semibold text-emerald-800 tracking-wide" data-i18n="hero_badge">Next-Gen Climate Smart Farming Platform</span>
+          </div>
+
+          <!-- Large Headline -->
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-heading text-slate-900 tracking-tight leading-[1.12]">
+            <span data-i18n="hero_title_1">AI-Powered Smart Farming for a </span><span class="gradient-green-text" data-i18n="hero_title_gradient">Sustainable Future</span>
+          </h1>
+
+          <!-- Subheading -->
+          <p class="text-base sm:text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
+            <span data-i18n="hero_subheading"><span data-i18n="hero_subheading">Khet AI helps farmers increase crop yield, reduce losses, and make data-driven decisions using Artificial Intelligence, Computer Vision, Weather Analytics, and Smart Farming Technologies.</span></span>
+          </p>
+
+          <!-- Buttons: Get Started & Detect Disease & Listen -->
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+            <a href="#dashboard-preview" class="w-full sm:w-auto btn-primary-gradient px-8 py-4 rounded-2xl text-white font-bold text-base shadow-lg shadow-green-500/30 flex items-center justify-center gap-2 group">
+              <span data-i18n="hero_btn_get_started">Get Started</span>
+              <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </a>
+            
+            <a href="#disease-detection" class="w-full sm:w-auto btn-secondary-outline px-8 py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2 shadow-sm">
+              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <span data-i18n="hero_btn_detect_crop">AI Crop Detector</span>
+            </a>
+
+            <button type="button" id="hero-listen-btn" class="w-full sm:w-auto px-6 py-4 rounded-2xl bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-bold text-base inline-flex items-center justify-center gap-2 shadow-sm transition-all" title="Listen Aloud">
+              <span>🔊</span>
+              <span data-i18n="voice_listen">Listen</span>
+            </button>
+          </div>
+
+          <!-- Trust Badges & Verified Stats -->
+          <div class="pt-6 border-t border-slate-200/80 grid grid-cols-3 gap-4 text-center lg:text-left">
+            <div>
+              <span class="text-xl sm:text-2xl font-extrabold text-slate-900 font-heading">50,000+</span>
+              <p class="text-xs text-slate-500 font-medium">Farmers Enrolled</p>
+            </div>
+            <div>
+              <span class="text-xl sm:text-2xl font-extrabold text-green-600 font-heading">95%</span>
+              <p class="text-xs text-slate-500 font-medium">Detection Accuracy</p>
+            </div>
+            <div>
+              <span class="text-xl sm:text-2xl font-extrabold text-sky-600 font-heading">100+</span>
+              <p class="text-xs text-slate-500 font-medium">Crops Analyzed</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Hero Visual Showcase: Illustration & 4 Floating Cards -->
+        <div class="lg:col-span-6 relative flex items-center justify-center min-h-[460px] sm:min-h-[520px]">
+          
+          <!-- Outer Radar Halo -->
+          <div class="absolute w-[440px] h-[440px] sm:w-[500px] sm:h-[500px] rounded-full border border-green-500/20 animate-spin-slow pointer-events-none"></div>
+          <div class="absolute w-[360px] h-[360px] sm:w-[400px] sm:h-[400px] rounded-full border border-emerald-400/25 pointer-events-none"></div>
+
+          <!-- Central Farm & Tech Interactive Graphic Illustration Container -->
+          <div class="relative z-10 w-full max-w-[440px] sm:max-w-[480px] bg-gradient-to-b from-emerald-900/90 to-green-950 rounded-3xl p-6 sm:p-8 shadow-2xl border border-emerald-500/30 overflow-hidden text-white">
+            
+            <!-- Graphic Illustration SVG: Farmer, Drone, Satellite, Crops, AI Grid -->
+            <div class="relative w-full h-64 sm:h-72 rounded-2xl bg-emerald-950/70 border border-emerald-500/20 overflow-hidden flex items-center justify-center">
+              
+              <!-- Background Terraced Farmland & Topography Lines -->
+              <svg class="absolute inset-0 w-full h-full opacity-35" viewBox="0 0 400 300" fill="none">
+                <path d="M-50 200 C50 160 150 240 250 190 C350 140 450 220 500 180 L500 300 L-50 300 Z" fill="#15803D" />
+                <path d="M-50 230 C80 200 180 260 280 220 C380 180 440 250 500 230 L500 300 L-50 300 Z" fill="#166534" />
+                <path d="M-50 260 C100 240 200 280 320 250 C400 220 460 270 500 260 L500 300 L-50 300 Z" fill="#14532D" />
+                <!-- Grid Lines -->
+                <line x1="0" y1="50" x2="400" y2="50" stroke="#22C55E" stroke-opacity="0.15" stroke-dasharray="4 4" />
+                <line x1="0" y1="100" x2="400" y2="100" stroke="#22C55E" stroke-opacity="0.15" stroke-dasharray="4 4" />
+                <line x1="0" y1="150" x2="400" y2="150" stroke="#22C55E" stroke-opacity="0.15" stroke-dasharray="4 4" />
+              </svg>
+
+              <!-- Satellite in High Orbit (Top Right) -->
+              <div class="absolute top-4 right-5 flex flex-col items-center">
+                <svg class="w-10 h-10 text-sky-400 drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M13 7 9 3 5 7l4 4" />
+                  <path d="m17 11 4 4-4 4-4-4" />
+                  <path d="m8 12 4 4 6-6-4-4Z" />
+                  <path d="m16 8 3-3" />
+                  <path d="M9 21a6 6 0 0 0-6-6" />
+                </svg>
+                <!-- Telemetry Beam -->
+                <div class="w-0.5 h-16 bg-gradient-to-b from-sky-400/80 to-transparent"></div>
+              </div>
+
+              <!-- AI Survey Drone Hovering (Top Left) -->
+              <div class="absolute top-6 left-6 animate-bounce" style="animation-duration: 3s;">
+                <svg class="w-12 h-12 text-green-400 drop-shadow-[0_0_10px_rgba(34,197,94,0.7)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+                  <circle cx="12" cy="12" r="3" />
+                  <circle cx="5" cy="5" r="2" />
+                  <circle cx="19" cy="5" r="2" />
+                  <circle cx="5" cy="19" r="2" />
+                  <circle cx="19" cy="19" r="2" />
+                </svg>
+                <!-- Scanning Cone -->
+                <div class="w-16 h-12 bg-gradient-to-b from-green-400/30 to-transparent mx-auto clip-cone" style="clip-path: polygon(50% 0%, 0% 100%, 100% 100%);"></div>
+              </div>
+
+              <!-- Progressive Indian Farmer with Smartphone (Center) -->
+              <div class="relative z-10 flex flex-col items-center mt-6">
+                <!-- Farmer SVG Character -->
+                <div class="w-24 h-28 relative">
+                  <!-- Farmer Turban & Silhouette -->
+                  <svg viewBox="0 0 100 120" class="w-full h-full drop-shadow-xl">
+                    <!-- Turban (Orange / Saffron Modern) -->
+                    <ellipse cx="50" cy="28" rx="22" ry="14" fill="#F97316" />
+                    <ellipse cx="50" cy="24" rx="20" ry="11" fill="#EA580C" />
+                    <path d="M32 28 Q50 12 68 28" stroke="#FED7AA" stroke-width="3" fill="none" />
+                    <!-- Face -->
+                    <circle cx="50" cy="40" r="14" fill="#D97706" />
+                    <!-- Beard -->
+                    <path d="M38 44 Q50 56 62 44 Q60 52 50 54 Q40 52 38 44 Z" fill="#451A03" />
+                    <!-- Body / Kurta -->
+                    <path d="M26 62 C26 54 38 52 50 52 C62 52 74 54 74 62 L80 110 L20 110 Z" fill="#F8FAFC" />
+                    <path d="M46 54 L46 76" stroke="#CBD5E1" stroke-width="2" />
+                    <!-- Smartphone in hand -->
+                    <rect x="52" y="66" width="16" height="26" rx="3" fill="#0F172A" stroke="#22C55E" stroke-width="1.5" />
+                    <rect x="54" y="69" width="12" height="18" rx="1" fill="#22C55E" opacity="0.9" />
+                  </svg>
+                </div>
+
+                <!-- Lush Crops in Foreground -->
+                <div class="flex items-end gap-3 -mt-3">
+                  <span class="text-2xl">🌾</span>
+                  <span class="text-3xl">🌱</span>
+                  <span class="text-2xl">🌾</span>
+                  <span class="text-3xl">🌿</span>
+                  <span class="text-2xl">🌾</span>
+                </div>
+              </div>
+
+              <!-- AI Holographic Data Nodes -->
+              <div class="absolute bottom-3 left-4 bg-emerald-900/90 backdrop-blur-md px-2.5 py-1 rounded-lg border border-emerald-400/40 text-[10px] font-mono text-emerald-300">
+                <span>NDVI: 0.84 OPTIMAL</span>
+              </div>
+              <div class="absolute bottom-3 right-4 bg-emerald-900/90 backdrop-blur-md px-2.5 py-1 rounded-lg border border-emerald-400/40 text-[10px] font-mono text-sky-300">
+                <span>SOIL MOIST: 64%</span>
+              </div>
+            </div>
+
+            <!-- Dashboard Mini Header -->
+            <div class="mt-4 flex items-center justify-between text-xs">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-green-400 animate-ping"></span>
+                <span class="font-bold text-emerald-300 font-heading tracking-wide">LIVE FIELD TELEMETRY</span>
+              </div>
+              <span class="text-slate-400 font-mono text-[11px]">Synced via Sentinel-2</span>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               FOUR ANIMATED FLOATING CARDS (As specifically requested!)
+               ================================================================ -->
+          
+          <!-- Card 1: Weather (Top Left) -->
+          <div class="absolute -top-6 -left-4 sm:-left-10 z-20 glass-card bg-white/95 rounded-2xl p-3.5 shadow-xl border border-white/80 max-w-[190px] animate-float-1">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center text-xl shrink-0">
+                ☀️
+              </div>
+              <div>
+                <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Weather</span>
+                <span class="text-sm font-extrabold text-slate-800">28°C Ludhiana</span>
+              </div>
+            </div>
+            <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-600">
+              <span>💧 Rain: 12%</span>
+              <span>💨 11 km/h</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Crop Health (Top Right) -->
+          <div class="absolute -top-4 -right-4 sm:-right-8 z-20 glass-card bg-white/95 rounded-2xl p-3.5 shadow-xl border border-white/80 max-w-[200px] animate-float-2">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+                🌿
+              </div>
+              <div>
+                <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Crop Health</span>
+                <span class="text-sm font-extrabold text-emerald-600">98.4% Healthy</span>
+              </div>
+            </div>
+            <div class="mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-600 flex items-center justify-between">
+              <span>Basmati Wheat</span>
+              <span class="font-bold text-emerald-700">No Blight</span>
+            </div>
+          </div>
+
+          <!-- Card 3: AI Prediction (Bottom Left) -->
+          <div class="absolute -bottom-6 -left-4 sm:-left-8 z-20 glass-card bg-white/95 rounded-2xl p-3.5 shadow-xl border border-white/80 max-w-[210px] animate-float-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-green-100 text-green-700 flex items-center justify-center text-xl shrink-0">
+                ⚡
+              </div>
+              <div>
+                <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">AI Prediction</span>
+                <span class="text-sm font-extrabold text-green-700">+18% Yield Boost</span>
+              </div>
+            </div>
+            <p class="mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-600">
+              Irrigate in 4h for optimal grain filling
+            </p>
+          </div>
+
+          <!-- Card 4: Market Price (Bottom Right) -->
+          <div class="absolute -bottom-6 -right-4 sm:-right-8 z-20 glass-card bg-white/95 rounded-2xl p-3.5 shadow-xl border border-white/80 max-w-[200px] animate-float-4">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl shrink-0">
+                📈
+              </div>
+              <div>
+                <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Market Price</span>
+                <span class="text-sm font-extrabold text-slate-800">₹7,520 <span class="text-xs text-emerald-600">+6.1%</span></span>
+              </div>
+            </div>
+            <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+              <span class="text-slate-500">Cotton Shankar</span>
+              <span class="font-bold text-emerald-600">Strong Hold</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ========================================================================
+       ABOUT SECTION
+       ======================================================================== -->
+  <section id="about" class="py-20 bg-white border-y border-slate-200/80 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto space-y-4">
+        <span class="px-3.5 py-1 text-xs font-bold uppercase tracking-wider bg-green-100 text-green-800 rounded-full">
+          About Khet AI
+        </span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-slate-900 tracking-tight">
+          Smart Farming Starts with AI
+        </h2>
+        <p class="text-base sm:text-lg text-slate-600 leading-relaxed">
+          Khet AI is an intelligent farming platform designed to support farmers throughout the entire agricultural lifecycle. From selecting the right crop to detecting diseases, monitoring weather, predicting yields, and accessing market prices, our platform empowers farmers with real-time, AI-driven insights.
+        </p>
+      </div>
+
+      <!-- 4 Value Pillars -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
+        
+        <div class="glass-card p-6 rounded-2xl border border-slate-200 hover:border-green-400 transition-all">
+          <div class="w-12 h-12 rounded-xl bg-green-100 text-green-600 flex items-center justify-center text-2xl mb-4">
+            🔄
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg mb-2 font-heading">Full Lifecycle Support</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Continuous guidance from soil testing, seed selection, and sowing schedules to harvest and mandi trading.
+          </p>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl border border-slate-200 hover:border-green-400 transition-all">
+          <div class="w-12 h-12 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center text-2xl mb-4">
+            🛰️
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg mb-2 font-heading">Satellite & Drone AI</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            High-resolution multi-spectral satellite imagery and microclimate telemetry synced directly to your farm.
+          </p>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl border border-slate-200 hover:border-green-400 transition-all">
+          <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mb-4">
+            🎯
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg mb-2 font-heading">Sub-Second Diagnosis</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Computer vision neural networks diagnose 100+ foliar pathogens in under 2 seconds with 95% accuracy.
+          </p>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl border border-slate-200 hover:border-green-400 transition-all">
+          <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl mb-4">
+            🗣️
+          </div>
+          <h3 class="font-bold text-slate-900 text-lg mb-2 font-heading">Farmer-First & Regional</h3>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Voice-enabled interactive conversational assistant available in Hindi, Punjabi, Marathi, Telugu, and English.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Comparison Banner: Guesswork vs Precision -->
+      <div class="mt-12 bg-gradient-to-r from-green-50 via-emerald-50 to-sky-50 rounded-3xl p-6 sm:p-8 border border-green-200/80 shadow-sm">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div class="space-y-3">
+            <span class="text-xs font-bold text-red-500 uppercase tracking-wider block">Traditional Farming</span>
+            <h4 class="text-xl font-bold text-slate-800 font-heading">Relying on Guesswork & Unseasonal Risks</h4>
+            <ul class="space-y-2 text-xs sm:text-sm text-slate-600">
+              <li class="flex items-center gap-2"><span class="text-red-500 font-bold">✕</span> High crop losses due to undetected early fungal spores</li>
+              <li class="flex items-center gap-2"><span class="text-red-500 font-bold">✕</span> Excessive fertilizer use degrading soil microbiomes</li>
+              <li class="flex items-center gap-2"><span class="text-red-500 font-bold">✕</span> Selling harvest at distress rates without mandi price foresight</li>
+            </ul>
+          </div>
+
+          <div class="space-y-3 bg-white p-6 rounded-2xl border border-green-300 shadow-md">
+            <span class="text-xs font-bold text-green-600 uppercase tracking-wider block">With Khet AI Smart Agriculture</span>
+            <h4 class="text-xl font-bold text-slate-900 font-heading">Data-Driven Precision & Maximized Profits</h4>
+            <ul class="space-y-2 text-xs sm:text-sm text-slate-700">
+              <li class="flex items-center gap-2"><span class="text-green-500 font-bold">✓</span> Instant leaf disease detection with organic & chemical dosages</li>
+              <li class="flex items-center gap-2"><span class="text-green-500 font-bold">✓</span> Soil-matched NPK recommendations reducing fertilizer costs by 28%</li>
+              <li class="flex items-center gap-2"><span class="text-green-500 font-bold">✓</span> AI Mandi price predictions ensuring sales at peak seasonal rates</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================================================
+       FEATURES SECTION (8 Modern Cards with Icons)
+       ======================================================================== -->
+  <section id="features" class="py-24 bg-slate-50 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto space-y-4">
+        <span class="px-3.5 py-1 text-xs font-bold uppercase tracking-wider bg-green-100 text-green-800 rounded-full" data-i18n="features_badge">
+          Comprehensive Platform Features
+        </span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-slate-900 tracking-tight" data-i18n="features_title">
+          Everything Modern Farmers Need in One App
+        </h2>
+        <p class="text-base sm:text-lg text-slate-600" data-i18n="features_desc">
+          Cutting-edge computer vision, deep learning algorithms, and real-time agricultural telemetry crafted specifically for high-yield farming.
+        </p>
+      </div>
+
+      <!-- Feature Cards Grid (8 Cards as requested) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
+        
+        <!-- Feature 1: AI Crop Disease Detection -->
+        <div class="glass-card p-6 rounded-3xl border border-slate-200/90 hover:border-green-500 flex flex-col justify-between group">
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-green-100 text-green-600 flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition-transform">
+              🔬
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2 font-heading" data-i18n="feat1_title">AI Crop Disease Detection</h3>
+            <p class="text-sm text-slate-600 leading-relaxed" data-i18n="feat1_desc">
+              Upload a crop leaf image and instantly detect diseases using Artificial Intelligence with precise organic and chemical treatment advice.
+            </p>
+          </div>
+          <a href="#disease-detection" class="mt-6 text-xs font-bold text-green-600 flex items-center gap-1 hover:text-green-700">
+            <span data-i18n="feat1_btn">Test Leaf Scanner</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+
+        <!-- Feature 2: Smart Weather Forecast -->
+        <div class="glass-card p-6 rounded-3xl border border-slate-200/90 hover:border-sky-500 flex flex-col justify-between group">
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition-transform">
+              🌦️
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2 font-heading" data-i18n="feat2_title">Smart Weather Forecast</h3>
+            <p class="text-sm text-slate-600 leading-relaxed" data-i18n="feat2_desc">
+              View temperature, rainfall, humidity, wind speed, and receive farming advisories to schedule chemical sprays and field irrigations.
+            </p>
+          </div>
+          <a href="#weather" class="mt-6 text-xs font-bold text-sky-600 flex items-center gap-1 hover:text-sky-700">
+            <span data-i18n="feat2_btn">View 7-Day Radar</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+
+        <!-- Feature 3: AI Crop Recommendation -->
+        <div class="glass-card p-6 rounded-3xl border border-slate-200/90 hover:border-emerald-500 flex flex-col justify-between group">
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition-transform">
+              🌱
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2 font-heading" data-i18n="feat3_title">AI Crop Recommendation</h3>
+            <p class="text-sm text-slate-600 leading-relaxed" data-i18n="feat3_desc">
+              Get personalized crop suggestions based on soil, climate, location, water availability, and budget for maximum return on investment.
+            </p>
+          </div>
+          <a href="#crop-recommendation" class="mt-6 text-xs font-bold text-emerald-600 flex items-center gap-1 hover:text-emerald-700">
+            <span data-i18n="feat3_btn">Calculate Best Crop</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+
+        <!-- Feature 4: Crop Knowledge Center -->
+        <div class="glass-card p-6 rounded-3xl border border-slate-200/90 hover:border-amber-500 flex flex-col justify-between group">
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition-transform">
+              📚
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2 font-heading" data-i18n="feat4_title">Crop Knowledge Center</h3>
+            <p class="text-sm text-slate-600 leading-relaxed" data-i18n="feat4_desc">
+              Learn about: Life Cycle, Best Season, Soil Type, Water Requirement, Fertilizer Schedule, Harvest Time, Average Yield, and Prices.
+            </p>
+          </div>
+          <a href="#crop-guide" class="mt-6 text-xs font-bold text-amber-700 flex items-center gap-1 hover:text-amber-800">
+            <span data-i18n="feat4_btn">Explore Encyclopedia</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+
+        <!-- Feature 5: Market Intelligence -->
+        <div class="glass-card p-6 rounded-3xl border border-slate-200/90 hover:border-green-500 flex flex-col justify-between group">
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-green-100 text-green-600 flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition-transform">
+              📊
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2 font-heading" data-i18n="feat5_title">Market Intelligence</h3>
+            <p class="text-sm text-slate-600 leading-relaxed" data-i18n="feat5_desc">
+              Monitor live market prices, APMC weekly price trends, and AI-powered selling recommendations to avoid distress selling.
+            </p>
+          </div>
+          <a href="#market-prices" class="mt-6 text-xs font-bold text-green-600 flex items-center gap-1 hover:text-green-700">
+            <span data-i18n="feat5_btn">Check Mandi Rates</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+
+        <!-- Feature 6: Smart Irrigation -->
+        <div class="glass-card p-6 rounded-3xl border border-slate-200/90 hover:border-sky-500 flex flex-col justify-between group">
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition-transform">
+              💧
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2 font-heading" data-i18n="feat6_title">Smart Irrigation</h3>
+            <p class="text-sm text-slate-600 leading-relaxed" data-i18n="feat6_desc">
+              Optimize water usage through intelligent irrigation planning, evapotranspiration indices, and moisture sensor automation.
+            </p>
+          </div>
+          <a href="#dashboard-preview" class="mt-6 text-xs font-bold text-sky-600 flex items-center gap-1 hover:text-sky-700">
+            <span data-i18n="feat6_btn">Water Optimization</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+
+        <!-- Feature 7: AI Farming Assistant -->
+        <div class="glass-card p-6 rounded-3xl border border-slate-200/90 hover:border-purple-500 flex flex-col justify-between group">
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition-transform">
+              🤖
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2 font-heading" data-i18n="feat7_title">AI Farming Assistant</h3>
+            <p class="text-sm text-slate-600 leading-relaxed" data-i18n="feat7_desc">
+              Ask farming questions and receive instant AI-generated answers in your preferred local language 24 hours a day, 7 days a week.
+            </p>
+          </div>
+          <a href="#ai-assistant" class="mt-6 text-xs font-bold text-purple-600 flex items-center gap-1 hover:text-purple-700">
+            <span data-i18n="feat7_btn">Chat with Agronomist</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+
+        <!-- Feature 8: Government Schemes -->
+        <div class="glass-card p-6 rounded-3xl border border-slate-200/90 hover:border-teal-500 flex flex-col justify-between group">
+          <div>
+            <div class="w-14 h-14 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition-transform">
+              🏛️
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2 font-heading" data-i18n="feat8_title">Government Schemes</h3>
+            <p class="text-sm text-slate-600 leading-relaxed" data-i18n="feat8_desc">
+              Explore subsidies, crop insurance, solar water pumps, and agricultural support schemes with our instant eligibility calculator.
+            </p>
+          </div>
+          <button id="open-schemes-calc-btn" class="mt-6 text-xs font-bold text-teal-700 flex items-center gap-1 hover:text-teal-800 text-left">
+            <span data-i18n="feat8_btn">Check Subsidy Eligibility</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================================================
+       HOW IT WORKS (4 Animated Steps)
+       ======================================================================== -->
+  <section class="py-24 bg-white border-y border-slate-200/80 relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-2xl mx-auto space-y-4">
+        <span class="px-3.5 py-1 text-xs font-bold uppercase tracking-wider bg-green-100 text-green-800 rounded-full" data-i18n="how_badge">
+          Simple 4-Step Process
+        </span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-slate-900 tracking-tight" data-i18n="how_title">
+          How Khet AI Works
+        </h2>
+        <p class="text-base sm:text-lg text-slate-600" data-i18n="how_desc">
+          Transforming agricultural data into actionable field recommendations in just four intuitive steps.
+        </p>
+      </div>
+
+      <!-- 4 Steps Flow Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-16 relative">
+        
+        <!-- Connecting Line for Desktop -->
+        <div class="hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-green-300 via-emerald-400 to-sky-400 -translate-y-12 z-0"></div>
+
+        <!-- Step 1 -->
+        <div class="relative z-10 glass-card p-6 rounded-3xl border border-slate-200/90 text-center hover:shadow-xl transition-all">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 text-white font-extrabold text-2xl flex items-center justify-center mx-auto shadow-lg shadow-green-500/30 mb-6">
+            1
+          </div>
+          <span class="text-xs font-bold text-green-600 uppercase tracking-wider block mb-1" data-i18n="how_step1_badge">Step 01</span>
+          <h3 class="text-lg font-bold text-slate-900 mb-2 font-heading" data-i18n="how_step1_title">Register Your Farm</h3>
+          <p class="text-sm text-slate-600 leading-relaxed" data-i18n="how_step1_desc">
+            Enter your district, GPS coordinates, landholding size, and primary soil classification in 30 seconds.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="relative z-10 glass-card p-6 rounded-3xl border border-slate-200/90 text-center hover:shadow-xl transition-all">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-extrabold text-2xl flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/30 mb-6">
+            2
+          </div>
+          <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider block mb-1" data-i18n="how_step2_badge">Step 02</span>
+          <h3 class="text-lg font-bold text-slate-900 mb-2 font-heading" data-i18n="how_step2_title">Upload Crop Images or Farm Details</h3>
+          <p class="text-sm text-slate-600 leading-relaxed" data-i18n="how_step2_desc">
+            Snap a smartphone photo of an affected leaf, enter your soil N-P-K readings, or sync farm sensors.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="relative z-10 glass-card p-6 rounded-3xl border border-slate-200/90 text-center hover:shadow-xl transition-all">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-sky-600 text-white font-extrabold text-2xl flex items-center justify-center mx-auto shadow-lg shadow-teal-500/30 mb-6">
+            3
+          </div>
+          <span class="text-xs font-bold text-teal-600 uppercase tracking-wider block mb-1" data-i18n="how_step3_badge">Step 03</span>
+          <h3 class="text-lg font-bold text-slate-900 mb-2 font-heading" data-i18n="how_step3_title">AI Analyzes Data</h3>
+          <p class="text-sm text-slate-600 leading-relaxed" data-i18n="how_step3_desc">
+            Deep convolutional neural networks process leaf pathology, satellite radar, and microclimate telemetry.
+          </p>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="relative z-10 glass-card p-6 rounded-3xl border border-slate-200/90 text-center hover:shadow-xl transition-all">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white font-extrabold text-2xl flex items-center justify-center mx-auto shadow-lg shadow-sky-500/30 mb-6">
+            4
+          </div>
+          <span class="text-xs font-bold text-sky-600 uppercase tracking-wider block mb-1" data-i18n="how_step4_badge">Step 04</span>
+          <h3 class="text-lg font-bold text-slate-900 mb-2 font-heading" data-i18n="how_step4_title">Receive Smart Recommendations</h3>
+          <p class="text-sm text-slate-600 leading-relaxed" data-i18n="how_step4_desc">
+            Get instant organic/chemical treatment prescriptions, water plans, and live mandi selling timing.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================================================
+       DASHBOARD PREVIEW SECTION (Interactive Live Tools Hub)
+       ======================================================================== -->
+  <section id="dashboard-preview" class="py-24 bg-slate-900 text-white relative overflow-hidden">
+    <!-- Glow Backdrop -->
+    <div class="absolute -top-40 left-1/4 w-[600px] h-[600px] bg-green-500/15 blur-3xl pointer-events-none rounded-full"></div>
+    <div class="absolute -bottom-40 right-1/4 w-[600px] h-[600px] bg-sky-500/15 blur-3xl pointer-events-none rounded-full"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      
+      <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
+        <span class="px-3.5 py-1 text-xs font-bold uppercase tracking-wider bg-green-500/20 text-green-300 rounded-full border border-green-500/30">
+          Live Interactive Agritech Suite
+        </span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-white tracking-tight">
+          Khet AI Dashboard Preview
+        </h2>
+        <p class="text-base sm:text-lg text-slate-300">
+          Test drive our live agricultural engine. Experience the real-time weather analytics, leaf disease vision scanner, crop recommendation calculator, and mandi price trend intelligence.
+        </p>
+      </div>
+
+      <!-- Grid of 4 Dashboard Cards: Weather, Disease Detection, Crop Recommendation, Market -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- ==================================================================
+             1. WEATHER CARD (lg:col-span-6)
+             ================================================================== -->
+        <div id="weather" class="lg:col-span-6 bg-slate-800/90 rounded-3xl p-6 sm:p-7 border border-slate-700/80 shadow-2xl flex flex-col justify-between backdrop-blur-xl">
+          <div>
+            <!-- Header with Title & State Filters -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-700">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl">🌦️</span>
+                <div>
+                  <h3 class="font-bold text-lg text-white font-heading" data-i18n="weather_title">Smart Weather Forecast</h3>
+                  <p class="text-xs text-slate-400" data-i18n="weather_subtitle">Real-Time Open-Meteo Satellite Doppler Telemetry</p>
+                </div>
+                <button type="button" id="weather-listen-btn" class="p-1.5 ml-1 bg-slate-700/80 hover:bg-slate-600 text-slate-300 rounded-lg text-xs" title="Listen to Weather Advisory">🔊</button>
+              </div>
+
+              <!-- State Filter Pills -->
+              <div class="flex items-center gap-1.5 bg-slate-900/80 p-1 rounded-xl border border-slate-700/80 text-xs">
+                <button type="button" class="weather-filter-btn px-2.5 py-1 rounded-lg font-semibold transition-all bg-green-600 text-white" data-filter="all" data-i18n="weather_filter_all">All (69)</button>
+                <button type="button" class="weather-filter-btn px-2.5 py-1 rounded-lg font-semibold transition-all bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300" data-filter="gj" data-i18n="weather_filter_gj">Gujarat (33)</button>
+                <button type="button" class="weather-filter-btn px-2.5 py-1 rounded-lg font-semibold transition-all bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300" data-filter="mh" data-i18n="weather_filter_mh">Maharashtra (36)</button>
+              </div>
+            </div>
+
+            <!-- Search Bar with Autocomplete & GPS & Dropdown -->
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 mt-4 items-center">
+              <div class="sm:col-span-6 relative">
+                <input type="text" id="weather-district-search" data-i18n-placeholder="weather_search_placeholder" placeholder="Search district in Gujarat or Maharashtra..." class="w-full bg-slate-900 text-xs text-white border border-slate-700 rounded-xl px-3 py-2 focus:outline-none focus:border-green-500">
+                <div id="weather-search-results" class="autocomplete-dropdown hidden"></div>
+              </div>
+
+              <div class="sm:col-span-5">
+                <select id="weather-district-select" class="w-full bg-slate-900 text-xs font-semibold text-green-400 border border-slate-700 rounded-xl px-3 py-2 focus:outline-none focus:border-green-500 cursor-pointer">
+                  <!-- Populated dynamically via JS with all 69 districts -->
+                </select>
+              </div>
+
+              <div class="sm:col-span-1 flex justify-center">
+                <button id="weather-gps-btn" type="button" title="Use My Location" class="w-full sm:w-auto p-2 bg-slate-900 hover:bg-slate-700 border border-slate-700 rounded-xl text-green-400 transition-all flex items-center justify-center font-bold text-sm shadow-sm" aria-label="Use Current GPS Location">
+                  📍
+                </button>
+              </div>
+            </div>
+
+            <!-- Location Name & Status -->
+            <div class="flex items-center justify-between mt-3 text-xs">
+              <div class="flex items-center gap-1.5">
+                <span class="text-green-500">●</span>
+                <span id="weather-district-name" class="font-bold text-white text-sm">Ahmedabad, Gujarat</span>
+              </div>
+              <span id="weather-status-indicator" class="text-green-400 font-mono text-[11px]">Live Satellite Telemetry Synced</span>
+            </div>
+
+            <!-- Current Weather Overview -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-4 text-center">
+              <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-700/60">
+                <span class="text-[11px] text-slate-400 uppercase font-semibold block" data-i18n="weather_label_temp">Temperature</span>
+                <div class="flex items-center justify-center gap-1.5 mt-0.5">
+                  <span id="weather-temp" class="text-2xl font-black text-white font-heading">28°C</span>
+                  <span id="weather-icon" class="text-xl">☀️</span>
+                </div>
+                <span class="text-[10px] text-slate-400 block mt-0.5">Feels <span id="weather-feels-like">29°C</span></span>
+              </div>
+
+              <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-700/60">
+                <span class="text-[11px] text-slate-400 uppercase font-semibold block" data-i18n="weather_label_humidity">Humidity</span>
+                <span id="weather-humidity" class="text-2xl font-black text-sky-400 font-heading block mt-0.5">58%</span>
+                <span id="weather-condition" data-alias="weather-condition-text" class="text-[10px] text-slate-400 block mt-0.5">Clear Sky</span>
+              </div>
+
+              <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-700/60">
+                <span class="text-[11px] text-slate-400 uppercase font-semibold block" data-i18n="weather_label_rain_prob">Rain Chance</span>
+                <span id="weather-rain" class="text-2xl font-black text-blue-400 font-heading block mt-0.5">10%</span>
+                <span class="text-[10px] text-slate-400 block mt-0.5">Precip: <span id="weather-rain-amount">0.0 mm</span></span>
+              </div>
+
+              <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-700/60">
+                <span class="text-[11px] text-slate-400 uppercase font-semibold block" data-i18n="weather_label_wind">Wind</span>
+                <span id="weather-wind" class="text-sm font-bold text-emerald-400 block mt-2">12 km/h</span>
+                <span class="text-[10px] text-slate-400 block mt-1">Calm Surface Drift</span>
+              </div>
+            </div>
+
+            <!-- Hourly Forecast Chart -->
+            <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-700/70 mb-4">
+              <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                <span data-i18n="weather_hourly_title">24-Hour Temperature & Rain Trend</span>
+                <span class="text-green-400 font-mono text-[10px]">Open-Meteo High-Res</span>
+              </div>
+              <div class="h-44 w-full">
+                <canvas id="weather-chart"></canvas>
+              </div>
+            </div>
+
+            <!-- 5-Day Mini Forecast Cards -->
+            <div>
+              <span class="text-xs font-semibold text-slate-400 block mb-2" data-i18n="weather_forecast_title">5-Day Agricultural Forecast</span>
+              <div id="weather-forecast-grid" class="grid grid-cols-5 gap-2 text-slate-800">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Agronomic Advisory Alert Box -->
+          <div class="mt-4 bg-emerald-950/80 border border-emerald-500/40 rounded-2xl p-4 text-xs text-emerald-200 flex items-start gap-3">
+            <span class="text-lg shrink-0">💡</span>
+            <div>
+              <span class="font-bold text-white block mb-0.5" data-i18n="weather_advisory_title">Agronomic Advisory</span>
+              <p id="weather-advisory">Optimal conditions for wheat and cotton growth. Safe window for foliar nutrient spraying over the next 48 hours.</p>
+            </div>
+          </div>
+        </div>
+
+
+                <!-- ==================================================================
+             2. DUAL-MODE AI CROP & DISEASE DETECTOR CARD (lg:col-span-6)
+             ================================================================== -->
+        <div id="disease-detection" class="lg:col-span-6 bg-slate-800/90 rounded-3xl p-6 sm:p-7 border border-slate-700/80 shadow-2xl backdrop-blur-xl flex flex-col justify-between">
+          <div>
+            <!-- Header with Title & Listen Button -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-700">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl">🌱</span>
+                <div>
+                  <h3 class="font-bold text-lg text-white font-heading" data-i18n="detector_title">AI Crop & Plant Vision Detector</h3>
+                  <p class="text-xs text-slate-400" data-i18n="detector_subtitle">Real Computer Vision Inference • Crop Species & Health Diagnosis</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" id="detector-listen-btn" class="p-1.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-xs" title="Listen Aloud">🔊</button>
+                <span class="px-2.5 py-1 text-xs font-mono font-bold bg-green-500/20 text-green-300 rounded-lg border border-green-500/40">
+                  AI VISION ACTIVE
+                </span>
+              </div>
+            </div>
+
+            <!-- Dual-Mode Selector Tabs -->
+            <div class="flex items-center gap-2 mt-4 p-1.5 bg-slate-900/90 rounded-2xl border border-slate-700 w-fit">
+              <button type="button" id="detector-mode-crop" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-green-600 text-white shadow-md shadow-green-600/30">
+                <span data-i18n="detector_tab_crop">🌱 Identify Crop Species</span>
+              </button>
+              <button type="button" id="detector-mode-disease" class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">
+                <span data-i18n="detector_tab_disease">🔬 Diagnose Crop Disease</span>
+              </button>
+            </div>
+
+            <!-- Voice Dictation & Text Search Bar for Crop Disease Diagnosis -->
+            <div class="mt-4 p-3 bg-slate-900/90 rounded-2xl border border-slate-700">
+              <label class="text-xs font-semibold text-slate-300 block mb-1.5 flex items-center justify-between">
+                <span data-i18n="disease_search_title">🔍 Enter or Dictate Crop Disease:</span>
+                <span id="disease-mic-status" class="text-[11px] text-green-400 font-mono hidden animate-pulse">● Listening...</span>
+              </label>
+              <div class="flex items-center gap-2">
+                <input type="text" id="disease-search-input" data-i18n-placeholder="disease_input_placeholder" placeholder="Type or dictate disease name (e.g., Tomato Blight, Wheat Rust)..." class="flex-1 bg-slate-800 text-white text-xs rounded-xl px-3 py-2.5 border border-slate-700 focus:outline-none focus:border-green-500">
+                <button type="button" id="disease-mic-btn" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-green-400 rounded-xl border border-slate-700 transition-all font-bold text-sm" title="Dictate Disease with Voice">
+                  🎤
+                </button>
+                <button type="button" id="disease-search-btn" class="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-green-600/30">
+                  <span data-i18n="disease_diagnose_btn">Diagnose</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Hidden file & camera inputs -->
+            <input type="file" id="detector-file-input" accept="image/*" class="hidden">
+            <input type="file" id="detector-camera-input" accept="image/*" capture="environment" class="hidden">
+
+            <!-- Instant Sample Leaves / Crops -->
+            <div class="mt-4">
+              <span class="text-xs font-semibold text-slate-400 block mb-2" data-i18n="detector_sample_title">Instant AI Test Samples:</span>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button type="button" class="detector-sample-btn sample-leaf-btn px-2.5 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-semibold text-left transition-all border border-slate-600 text-slate-200" data-sample="tomato_blight">
+                  🍅 Tomato Blight
+                </button>
+                <button type="button" class="detector-sample-btn sample-leaf-btn px-2.5 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-semibold text-left transition-all border border-slate-600 text-slate-200" data-sample="wheat_rust">
+                  🌾 Wheat Rust
+                </button>
+                <button type="button" class="detector-sample-btn sample-leaf-btn px-2.5 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-semibold text-left transition-all border border-slate-600 text-slate-200" data-sample="rice_blight">
+                  🍚 Rice Blight
+                </button>
+                <button type="button" class="detector-sample-btn sample-leaf-btn px-2.5 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-semibold text-left transition-all border border-slate-600 text-slate-200" data-sample="cotton_healthy">
+                  🌱 Healthy Cotton
+                </button>
+              </div>
+
+              <!-- Upload & Camera Controls -->
+              <div class="mt-3 flex flex-wrap items-center gap-3">
+                <button type="button" onclick="document.getElementById('detector-file-input').click()" class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-green-600/30">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                  <span data-i18n="detector_upload_btn">Upload Photo</span>
+                </button>
+
+                <button type="button" id="detector-camera-btn" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-xs font-bold transition-all border border-slate-600">
+                  <span>📷</span>
+                  <span data-i18n="detector_camera_btn">Take Photo</span>
+                </button>
+
+                <span class="text-[11px] text-slate-400" data-i18n="detector_drag_text">Supports JPG, PNG, WebP from camera or gallery</span>
+              </div>
+            </div>
+
+            <!-- Drag & Drop Zone -->
+            <div id="detector-drop-zone" class="mt-4 p-4 rounded-2xl border-2 border-dashed border-slate-700 hover:border-green-500 bg-slate-900/40 text-center transition-all cursor-pointer">
+              <!-- Preview Box (shown after image selected) -->
+              <div id="detector-preview-box" class="hidden flex flex-col sm:flex-row items-center justify-between gap-4 p-3 bg-slate-900/80 rounded-xl border border-slate-700">
+                <div class="flex items-center gap-3">
+                  <img id="detector-preview-img" src="" alt="Selected Preview" class="w-16 h-16 object-cover rounded-xl border border-slate-600">
+                  <div class="text-left">
+                    <span id="detector-preview-info" class="text-xs font-semibold text-white block">image.jpg</span>
+                    <button type="button" id="detector-remove-btn" class="text-[11px] text-red-400 hover:text-red-300 underline font-medium">Remove Image</button>
+                  </div>
+                </div>
+                <button type="button" id="detector-analyze-btn" class="btn-primary-gradient px-5 py-2.5 rounded-xl text-white font-bold text-xs uppercase tracking-wide shadow-md shadow-green-600/30">
+                  <span data-i18n="detector_analyze_crop_btn">Identify Crop Species</span>
+                </button>
+              </div>
+
+              <!-- Placeholder when no image -->
+              <div id="detector-empty-dropzone" class="py-4">
+                <p class="text-xs text-slate-400 font-medium">Drag & drop crop leaf photo here, or select from buttons above</p>
+              </div>
+            </div>
+
+            <!-- Scanning Progress Bar -->
+            <div id="detector-progress-container" class="hidden mt-4 bg-slate-900/90 rounded-2xl p-4 border border-slate-700">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-5 h-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                <span id="detector-progress-text" class="text-xs font-mono text-green-400 font-semibold" data-i18n="detector_analyzing">AI Vision Model Analyzing Biomarkers...</span>
+              </div>
+              <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div class="bg-gradient-to-r from-green-500 to-emerald-400 h-full w-full animate-pulse"></div>
+              </div>
+            </div>
+
+            <!-- Uncertain Warning Alert Banner -->
+            <div id="detector-uncertain-warning" class="hidden mt-4 bg-amber-950/80 border border-amber-500/50 rounded-2xl p-4 text-xs text-amber-200">
+              <div class="flex items-start gap-2.5">
+                <span class="text-xl shrink-0">⚠️</span>
+                <div>
+                  <h5 class="font-bold text-amber-300 text-sm mb-1" data-i18n="detector_uncertain_title">Detection Uncertain</h5>
+                  <p id="detector-uncertain-desc" class="text-slate-300 leading-relaxed" data-i18n="detector_uncertain_msg">
+                    Confidence is low. The foliage may be obscured, out of focus, or in poor lighting. Check alternative candidate matches below or take a clearer close-up photo.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Result Box -->
+            <div id="detector-result-container" class="mt-4 space-y-3 hidden">
+              <div class="bg-slate-900/90 rounded-2xl p-4 border border-slate-700 text-xs space-y-3">
+                
+                <!-- Result Header with Listen Button -->
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block" data-i18n="disease_crop_label">Identified Species / Pathology</span>
+                    <div class="flex items-center gap-2 mt-0.5">
+                      <h4 id="det-res-crop-title" class="text-base sm:text-lg font-extrabold text-white font-heading">Wheat</h4>
+                      <span id="det-res-crop-sci" class="text-xs text-green-400 font-mono italic">(Triticum aestivum)</span>
+                    </div>
+                  </div>
+                  <button type="button" id="det-res-listen-btn" class="px-3 py-1.5 bg-green-600/30 hover:bg-green-600/50 text-green-300 border border-green-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5" title="Listen to AI Result">
+                    <span>🔊</span>
+                    <span data-i18n="voice_listen">Listen</span>
+                  </button>
+                </div>
+
+                <!-- Confidence Bar -->
+                <div>
+                  <div class="flex items-center justify-between text-[11px] mb-1">
+                    <span class="text-slate-400" data-i18n="detector_confidence">Confidence Score</span>
+                    <span id="det-res-crop-conf" class="font-bold text-green-400">96.4%</span>
+                  </div>
+                  <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div id="det-res-crop-confbar" class="bg-gradient-to-r from-green-500 to-emerald-400 h-full rounded-full transition-all duration-700" style="width: 96.4%;"></div>
+                  </div>
+                </div>
+
+                <!-- Visual Explanation (Crop Mode) -->
+                <div id="det-res-crop-explanation-container" class="pt-2 border-t border-slate-800">
+                  <span class="font-bold text-slate-300 block mb-1" data-i18n="detector_explanation">Visual Feature Explanation:</span>
+                  <p id="det-res-crop-explanation" class="text-slate-300 leading-relaxed text-[11px] bg-slate-950/60 p-2.5 rounded-xl border border-slate-800 whitespace-pre-line">Parallel venation with elongated slender green lamina and prominent ligule structure.</p>
+                </div>
+
+                <!-- Alternative Candidates (Crop Mode) -->
+                <div id="det-res-crop-alternatives-container">
+                  <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1.5" data-i18n="detector_alternatives">Alternative Possible Matches:</span>
+                  <div id="det-res-crop-alternatives" class="grid grid-cols-2 gap-2">
+                    <!-- Populated dynamically by JS -->
+                  </div>
+                </div>
+
+                <!-- Recommended Next Steps (Crop Mode) -->
+                <div id="det-res-crop-nextstep-container" class="pt-2 border-t border-slate-800">
+                  <span class="font-bold text-emerald-400 block mb-0.5" data-i18n="detector_next_steps">Recommended Next Steps:</span>
+                  <p id="det-res-crop-nextstep" class="text-slate-300 text-[11px] leading-relaxed">Check soil moisture and ensure balanced NPK fertilizer schedule during tillering stage.</p>
+                </div>
+
+                <!-- Complete 7-Dimension Crop Disease Diagnosis Information Grid -->
+                <div id="det-res-disease-7dims-container" class="space-y-2.5 pt-2 border-t border-slate-800 hidden">
+                  <!-- 1. Disease Name is in det-res-crop-title -->
+
+                  <!-- 2. Cause of Disease -->
+                  <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
+                    <span class="font-bold text-amber-400 block mb-0.5 text-[11px] flex items-center gap-1.5">
+                      <span>🔍</span> <span data-i18n="disease_label_cause">Cause of Disease:</span>
+                    </span>
+                    <p id="det-res-disease-cause" class="text-slate-300 text-[11px] leading-relaxed"></p>
+                  </div>
+
+                  <!-- 3. Organic Treatment -->
+                  <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
+                    <span class="font-bold text-green-400 block mb-0.5 text-[11px] flex items-center gap-1.5">
+                      <span>🌿</span> <span data-i18n="disease_label_organic">Organic Treatment:</span>
+                    </span>
+                    <p id="det-res-disease-organic" class="text-slate-300 text-[11px] leading-relaxed"></p>
+                  </div>
+
+                  <!-- 4. Chemical Treatment -->
+                  <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
+                    <span class="font-bold text-cyan-400 block mb-0.5 text-[11px] flex items-center gap-1.5">
+                      <span>🧪</span> <span data-i18n="disease_label_chemical">Chemical Treatment:</span>
+                    </span>
+                    <p id="det-res-disease-chemical" class="text-slate-300 text-[11px] leading-relaxed"></p>
+                  </div>
+
+                  <!-- 5. Prevention Steps -->
+                  <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
+                    <span class="font-bold text-teal-400 block mb-0.5 text-[11px] flex items-center gap-1.5">
+                      <span>🛡️</span> <span data-i18n="disease_label_prevention">Prevention Steps:</span>
+                    </span>
+                    <p id="det-res-disease-prevention" class="text-slate-300 text-[11px] leading-relaxed"></p>
+                  </div>
+
+                  <!-- 6. Recommended Fertilizer -->
+                  <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
+                    <span class="font-bold text-yellow-400 block mb-0.5 text-[11px] flex items-center gap-1.5">
+                      <span>🌾</span> <span data-i18n="disease_label_fertilizer">Recommended Fertilizer:</span>
+                    </span>
+                    <p id="det-res-disease-fertilizer" class="text-slate-300 text-[11px] leading-relaxed"></p>
+                  </div>
+
+                  <!-- 7. Recommended Pesticide -->
+                  <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
+                    <span class="font-bold text-rose-400 block mb-0.5 text-[11px] flex items-center gap-1.5">
+                      <span>🧴</span> <span data-i18n="disease_label_pesticide">Recommended Pesticide / Fungicide:</span>
+                    </span>
+                    <p id="det-res-disease-pesticide" class="text-slate-300 text-[11px] leading-relaxed"></p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+
+        <!-- ==================================================================
+             3. CROP RECOMMENDATION CARD (lg:col-span-6)
+             ================================================================== -->
+        <div id="crop-recommendation" class="lg:col-span-6 bg-slate-800/90 rounded-3xl p-6 sm:p-7 border border-slate-700/80 shadow-2xl backdrop-blur-xl flex flex-col justify-between">
+          <div>
+            <!-- Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-700">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl">🌱</span>
+                <div>
+                  <h3 class="font-bold text-lg text-white font-heading" data-i18n="crop_rec_title">AI Crop Recommendation</h3>
+                  <p class="text-xs text-slate-400" data-i18n="crop_rec_subtitle">Pan-India Soil NPK & Climate Decision Engine</p>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 text-xs font-bold bg-emerald-500/20 text-emerald-300 rounded-lg border border-emerald-500/40">
+                PRECISION AG
+              </span>
+            </div>
+
+            <!-- Pan-India Crop Search with Autocomplete -->
+            <div class="mt-4">
+              <label class="text-xs font-semibold text-slate-300 block mb-1" data-i18n="crop_search_label">Search Any Crop Across India:</label>
+              <div class="relative">
+                <input type="text" id="crop-search-input" data-i18n-placeholder="crop_search_placeholder" placeholder="Search crops e.g., Rice, Wheat, Cotton, Mustard, Tomato, Turmeric..." class="w-full bg-slate-900 text-xs text-white border border-slate-700 rounded-xl px-3 py-2.5 focus:outline-none focus:border-green-500">
+                <div id="crop-search-suggestions" class="autocomplete-dropdown hidden"></div>
+              </div>
+              <div id="selected-crop-info-card" class="hidden mt-2"></div>
+            </div>
+
+            <!-- Soil & Resource Input Form -->
+            <form id="crop-rec-form" class="mt-4 space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                
+                <div>
+                  <label class="text-xs font-semibold text-slate-300 block mb-1" data-i18n="crop_soil_label">Soil Type</label>
+                  <select id="soil-type-select" class="w-full bg-slate-900 text-xs font-medium text-white border border-slate-700 rounded-xl px-3 py-2.5 focus:outline-none focus:border-green-500">
+                    <option value="alluvial">Alluvial Loam (Indo-Gangetic)</option>
+                    <option value="black">Black Cotton Soil (Regur)</option>
+                    <option value="red">Red Loamy Soil (Deccan)</option>
+                    <option value="sandy">Sandy Loam (Arid / Semi-Arid)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="text-xs font-semibold text-slate-300 block mb-1" data-i18n="crop_season_label">Sowing Season</label>
+                  <select id="season-select" class="w-full bg-slate-900 text-xs font-medium text-white border border-slate-700 rounded-xl px-3 py-2.5 focus:outline-none focus:border-green-500">
+                    <option value="rabi">Rabi (Winter: Oct - Mar)</option>
+                    <option value="kharif">Kharif (Monsoon: Jun - Oct)</option>
+                    <option value="zaid">Zaid (Summer: Mar - Jun)</option>
+                  </select>
+                </div>
+
+              </div>
+
+              <!-- Sliders: Nitrogen, Phosphorus, Potassium -->
+              <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-700/80 space-y-3">
+                <span class="text-xs font-bold text-slate-300 uppercase tracking-wide block" data-i18n="crop_npk_label">Soil Nutrient Levels (kg/Hectare)</span>
+                
+                <div>
+                  <div class="flex justify-between text-xs text-slate-400 mb-1">
+                    <span>Nitrogen (N)</span>
+                    <span class="font-bold text-green-400"><span id="slider-n-val">120</span> kg/ha</span>
+                  </div>
+                  <input type="range" id="slider-n" min="40" max="200" value="120" class="w-full accent-green-500 cursor-pointer">
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs text-slate-400 mb-1">
+                    <span>Phosphorus (P)</span>
+                    <span class="font-bold text-sky-400"><span id="slider-p-val">60</span> kg/ha</span>
+                  </div>
+                  <input type="range" id="slider-p" min="20" max="120" value="60" class="w-full accent-sky-500 cursor-pointer">
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-xs text-slate-400 mb-1">
+                    <span>Potassium (K)</span>
+                    <span class="font-bold text-amber-400"><span id="slider-k-val">50</span> kg/ha</span>
+                  </div>
+                  <input type="range" id="slider-k" min="20" max="100" value="50" class="w-full accent-amber-500 cursor-pointer">
+                </div>
+              </div>
+
+              <button type="submit" class="w-full btn-primary-gradient py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-white shadow-lg shadow-green-600/30 flex items-center justify-center gap-2">
+                <span data-i18n="crop_evaluate_btn">Evaluate & Generate Recommendations</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              </button>
+            </form>
+          </div>
+
+          <!-- Dynamic Results Container -->
+          <div id="crop-rec-results" class="mt-5 text-slate-800">
+            <!-- Populated via JS with Top 3 Crops, Profit Estimation, and Best Season -->
+          </div>
+        </div>
+
+
+        <!-- ==================================================================
+             4. MARKET CARD (lg:col-span-6)
+             ================================================================== -->
+        <div id="market-prices" class="lg:col-span-6 bg-slate-800/90 rounded-3xl p-6 sm:p-7 border border-slate-700/80 shadow-2xl backdrop-blur-xl flex flex-col justify-between">
+          <div>
+            <!-- Header -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-700">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl">💰</span>
+                <div>
+                  <h3 class="font-bold text-lg text-white font-heading">Market Intelligence</h3>
+                  <p class="text-xs text-slate-400">Live APMC Mandi Rates & AI Selling Advisories</p>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 text-xs font-bold bg-amber-500/20 text-amber-300 rounded-lg border border-amber-500/40">
+                LIVE TICKS
+              </span>
+            </div>
+
+            <!-- Crop Selector Chips -->
+            <div class="mt-4 flex flex-wrap gap-2">
+              <select id="market-crop-select" class="hidden">
+                <option value="wheat">Wheat</option>
+                <option value="cotton">Cotton</option>
+                <option value="mustard">Mustard</option>
+                <option value="rice">Rice</option>
+                <option value="tomato">Tomato</option>
+              </select>
+              <button class="market-crop-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-green-600 text-white shadow-sm" data-crop="wheat">
+                🌾 Wheat
+              </button>
+              <button class="market-crop-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-white text-slate-700 hover:bg-slate-100" data-crop="cotton">
+                ⚪ Cotton
+              </button>
+              <button class="market-crop-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-white text-slate-700 hover:bg-slate-100" data-crop="mustard">
+                🟡 Mustard
+              </button>
+              <button class="market-crop-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-white text-slate-700 hover:bg-slate-100" data-crop="rice">
+                🍚 Basmati Rice
+              </button>
+              <button class="market-crop-btn px-3 py-1.5 rounded-xl text-xs font-bold transition-all bg-white text-slate-700 hover:bg-slate-100" data-crop="tomato">
+                🍅 Tomato
+              </button>
+            </div>
+
+            <!-- Price Highlight Header -->
+            <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-700 mt-4 flex items-center justify-between">
+              <div>
+                <span id="market-current-crop" class="text-xs font-semibold text-slate-400 block">Wheat (Sharbati / Mill Quality)</span>
+                <div class="flex items-center gap-2 mt-1">
+                  <span id="market-current-price" class="text-2xl font-black text-white font-heading">₹2,380 / Qtl</span>
+                  <span id="market-current-change" class="text-xs font-bold text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-500/30">+5.8%</span>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">AI Recommendation</span>
+                <span id="market-ai-signal" class="text-xs font-extrabold text-green-400 bg-green-950/80 px-2.5 py-1 rounded-xl border border-green-500/40 inline-block mt-1">
+                  HOLD - Rising Trend Ahead
+                </span>
+              </div>
+            </div>
+
+            <!-- Interactive 30-Day Trend Chart -->
+            <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-700 mt-4">
+              <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                <span>30-Day Historical Trend & Moving Average</span>
+                <span class="text-slate-400 font-mono">APMC Aggregator</span>
+              </div>
+              <div class="h-44 w-full">
+                <canvas id="market-trend-chart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Market Table Preview -->
+          <div class="mt-4 pt-3 border-t border-slate-700 text-xs text-slate-400 flex items-center justify-between">
+            <span>🏛️ Synced with 200+ Agricultural Produce Market Committees</span>
+            <span class="text-emerald-400 font-semibold">Updated 5 min ago</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================================================
+       CROP KNOWLEDGE CENTER (Interactive Encyclopedia)
+       ======================================================================== -->
+    <!-- ========================================================================
+       CROP KNOWLEDGE CENTER (Comprehensive 35+ Crop Encyclopedic Master Guide)
+       ======================================================================== -->
+  <section id="crop-guide" class="py-24 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto space-y-4 mb-12">
+        <span class="px-3.5 py-1 text-xs font-bold uppercase tracking-wider bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300 rounded-full inline-block" data-i18n="guide_badge">
+          Agronomic Encyclopedia
+        </span>
+        <div class="flex items-center justify-center gap-3">
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-slate-900 dark:text-white tracking-tight" data-i18n="guide_title">
+            Crop Knowledge Center
+          </h2>
+          <button type="button" id="crop-knowledge-listen-btn" class="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-sm" title="Listen Aloud">🔊</button>
+        </div>
+        <p class="text-base sm:text-lg text-slate-600 dark:text-slate-400" data-i18n="guide_subtitle">
+          Comprehensive agronomic guide for 35+ major Indian crops covering climate, soil, sowing, varieties, irrigation, fertilizer, pests, disease IPM, and post-harvest management.
+        </p>
+      </div>
+
+      <!-- Search & Category Filters Bar -->
+      <div class="max-w-3xl mx-auto mb-10 space-y-4">
+        <div class="relative">
+          <div class="flex items-center bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 shadow-sm focus-within:border-green-500 transition-all">
+            <span class="text-xl text-slate-400 mr-3">🔍</span>
+            <input type="text" id="crop-knowledge-search" data-i18n-placeholder="guide_search_placeholder" placeholder="Search 35+ crops by English, Hindi, or local names: Wheat, Kapas, Gehun, Haldi, Tamatar..." class="w-full bg-transparent text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none font-medium">
+          </div>
+          <!-- Autocomplete Dropdown -->
+          <div id="crop-knowledge-suggestions" class="autocomplete-dropdown hidden"></div>
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <button type="button" class="crop-cat-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-green-600 text-white shadow-sm" data-category="all" data-i18n="guide_filter_all">All Crops (35+)</button>
+          <button type="button" class="crop-cat-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200" data-category="cereal" data-i18n="guide_filter_cereals">🌾 Cereals & Millets</button>
+          <button type="button" class="crop-cat-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200" data-category="pulse" data-i18n="guide_filter_pulses">🌱 Pulses</button>
+          <button type="button" class="crop-cat-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200" data-category="oilseed" data-i18n="guide_filter_oilseeds">🌻 Oilseeds</button>
+          <button type="button" class="crop-cat-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200" data-category="vegetable" data-i18n="guide_filter_vegetables">🍅 Vegetables</button>
+          <button type="button" class="crop-cat-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200" data-category="fruit" data-i18n="guide_filter_fruits">🍎 Fruits</button>
+          <button type="button" class="crop-cat-btn px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-slate-200" data-category="cash" data-i18n="guide_filter_spices">💰 Spices & Cash</button>
+        </div>
+      </div>
+
+      <!-- Crop Cards Grid Container -->
+      <div id="crop-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Rendered dynamically by filterAndRenderCrops() -->
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================================================
+       AI FARMING ASSISTANT (Interactive Chat Section)
+       ======================================================================== -->
+
+  <!-- ========================================================================
+       GOVERNMENT FARMER SUBSIDY CHECKER SECTION (25+ Central & State Schemes)
+       ======================================================================== -->
+  <section id="subsidy-checker" class="py-24 bg-slate-900 border-b border-slate-800 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto space-y-4 mb-14">
+        <span class="px-3.5 py-1 text-xs font-bold uppercase tracking-wider bg-emerald-950 text-emerald-300 border border-emerald-700/50 rounded-full inline-flex items-center gap-1.5" data-i18n="subsidy_badge">
+          🏛️ Central & State Assistance
+        </span>
+        <div class="flex items-center justify-center gap-3">
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-white tracking-tight" data-i18n="subsidy_title">
+            Government Farmer Subsidy Checker
+          </h2>
+          <button type="button" id="subsidy-header-listen-btn" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm" title="Listen Aloud">🔊</button>
+        </div>
+        <p class="text-base sm:text-lg text-slate-400" data-i18n="subsidy_subtitle">
+          Search authentic government schemes, verify eligibility criteria, and discover subsidy amounts up to 80% on tractors, drip irrigation, solar pumps, and machinery.
+        </p>
+      </div>
+
+      <!-- Search and Filter Controls -->
+      <div class="bg-slate-800/80 rounded-3xl p-6 sm:p-8 border border-slate-700/80 shadow-2xl backdrop-blur-xl mb-10 space-y-4">
+        
+        <!-- Search Bar -->
+        <div class="relative">
+          <div class="flex items-center bg-slate-900 border-2 border-slate-700 rounded-2xl px-4 py-3 shadow-inner focus-within:border-green-500 transition-all">
+            <span class="text-xl text-slate-400 mr-3">🔍</span>
+            <input type="text" id="subsidy-search-input" data-i18n-placeholder="subsidy_search_placeholder" placeholder="Search subsidies e.g. tractor, drip irrigation, solar pump, small farmer machinery..." class="w-full bg-transparent text-sm text-slate-100 placeholder-slate-500 focus:outline-none font-medium">
+          </div>
+        </div>
+
+        <!-- Filter Dropdowns Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+          
+          <!-- State Filter -->
+          <div>
+            <label class="text-xs font-semibold text-slate-400 block mb-1.5">State / Jurisdiction</label>
+            <select id="subsidy-state-filter" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-200 focus:ring-2 focus:ring-green-500 focus:outline-none">
+              <option value="all" data-i18n="subsidy_filter_all_states">All States (Pan-India)</option>
+              <option value="central">🏛️ Central Government (Nationwide)</option>
+              <option value="maharashtra">🌱 Maharashtra</option>
+              <option value="punjab">🌾 Punjab & Haryana</option>
+              <option value="uttar_pradesh">🌿 Uttar Pradesh</option>
+              <option value="gujarat">🦁 Gujarat</option>
+              <option value="karnataka">🍃 Karnataka</option>
+              <option value="andhra_pradesh">🌿 Andhra Pradesh & Telangana</option>
+              <option value="tamil_nadu">🌴 Tamil Nadu</option>
+              <option value="odisha">🌾 Odisha</option>
+              <option value="bengal">🌾 West Bengal</option>
+            </select>
+          </div>
+
+          <!-- Category Filter -->
+          <div>
+            <label class="text-xs font-semibold text-slate-400 block mb-1.5">Category</label>
+            <select id="subsidy-category-filter" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-200 focus:ring-2 focus:ring-green-500 focus:outline-none">
+              <option value="all" data-i18n="subsidy_filter_all_cats">All Farmer Categories</option>
+              <option value="machinery">🚜 Farm Machinery & Tractors (SMAM)</option>
+              <option value="irrigation">💧 Micro-Irrigation & Drip (PMKSY)</option>
+              <option value="solar">☀️ Solar Pumps (PM-KUSUM)</option>
+              <option value="organic">🌱 Organic Farming (PKVY)</option>
+              <option value="infrastructure">🏭 Infrastructure & Storage (AIF)</option>
+              <option value="credit">💳 Credit & Working Capital (KCC / MISS)</option>
+              <option value="insurance">🛡️ Crop Insurance (PMFBY)</option>
+              <option value="income">💵 Direct Income Support (PM-KISAN)</option>
+            </select>
+          </div>
+
+          <!-- Sort Select -->
+          <div>
+            <label class="text-xs font-semibold text-slate-400 block mb-1.5">Sort Options</label>
+            <select id="subsidy-sort-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-200 focus:ring-2 focus:ring-green-500 focus:outline-none">
+              <option value="relevance" data-i18n="subsidy_sort_relevance">Sort: Relevance</option>
+              <option value="subsidy" data-i18n="subsidy_sort_subsidy">Sort: Highest Subsidy</option>
+              <option value="name" data-i18n="subsidy_sort_name">Sort: Name (A-Z)</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Results Counter & Verified Badge -->
+        <div class="flex items-center justify-between pt-3 border-t border-slate-700/80 text-xs">
+          <div class="flex items-center gap-2">
+            <span id="subsidy-count-badge" class="px-2.5 py-0.5 rounded-full font-bold bg-green-500/20 text-green-300 border border-green-500/40">
+              25 Schemes Found
+            </span>
+            <span class="text-slate-400">• Verified with Ministry of Agriculture & Farmers Welfare</span>
+          </div>
+          <span class="text-slate-500 text-[11px] font-mono">DBT-Enabled</span>
+        </div>
+
+      </div>
+
+      <!-- Schemes Grid Container -->
+      <div id="subsidy-results-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Rendered dynamically by filterAndRenderSubsidies() -->
+      </div>
+
+    </div>
+  </section>
+
+  <section id="ai-assistant" class="py-24 bg-slate-50 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto space-y-4 mb-14">
+        <span class="px-3.5 py-1 text-xs font-bold uppercase tracking-wider bg-green-100 text-green-800 rounded-full">
+          24/7 AI Agronomist
+        </span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-slate-900 tracking-tight">
+          Ask Khet AI Anything
+        </h2>
+        <p class="text-base sm:text-lg text-slate-600">
+          Have questions about pest outbreaks, fertilizer dosage calculations, or subsidy eligibility? Our AI agronomist provides scientific, localized guidance instantly.
+        </p>
+      </div>
+
+      <!-- Chat Container -->
+      <div class="max-w-3xl mx-auto bg-white rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden flex flex-col h-[580px]">
+        
+        <!-- Chat Header -->
+        <div class="bg-gradient-to-r from-slate-900 via-green-950 to-emerald-950 p-4 sm:p-5 text-white flex items-center justify-between border-b border-green-500/20">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-green-500/20 border border-green-400/40 flex items-center justify-center text-xl">
+              🤖
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 class="font-bold text-base font-heading">Khet AI Mitra (खेत मित्र)</h4>
+                <span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span>
+              </div>
+              <p class="text-xs text-emerald-300">Agricultural AI Assistant • Online</p>
+            </div>
+          </div>
+          <span class="text-xs px-2.5 py-1 bg-white/10 rounded-lg text-slate-300 font-mono">Responds in <1s</span>
+        </div>
+
+        <!-- Messages Area -->
+        <div id="chat-messages-container" class="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-slate-50/70">
+          
+          <!-- Bot Welcome Message -->
+          <div class="flex justify-start mb-3">
+            <div class="flex items-start gap-2.5 max-w-[85%]">
+              <div class="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                🤖
+              </div>
+              <div class="p-4 rounded-2xl text-xs sm:text-sm leading-relaxed bg-white border border-slate-200 text-slate-800 shadow-sm">
+                नमस्ते किसान साथी! I am your <strong>Khet AI Mitra</strong>. I can assist you with:
+                <ul class="list-disc list-inside mt-2 space-y-1 text-slate-700">
+                  <li>Pest and leaf disease treatment prescriptions</li>
+                  <li>Optimal N-P-K fertilizer schedules and Nano Urea use</li>
+                  <li>Drip irrigation subsidies & PM-KISAN information</li>
+                  <li>Fall Armyworm and Pink Bollworm emergency control</li>
+                </ul>
+                <p class="mt-2 text-xs font-semibold text-green-700">Click a prompt below or type your question!</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Prompt Pills -->
+        <div class="px-4 py-2.5 bg-slate-100 border-t border-slate-200/80 flex items-center gap-2 overflow-x-auto text-xs whitespace-nowrap">
+          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Quick:</span>
+          <button class="chat-prompt-pill px-3 py-1 bg-white hover:bg-green-50 hover:text-green-700 border border-slate-200 rounded-full text-slate-700 transition-all font-medium">
+            Yellow spots on wheat leaves
+          </button>
+          <button class="chat-prompt-pill px-3 py-1 bg-white hover:bg-green-50 hover:text-green-700 border border-slate-200 rounded-full text-slate-700 transition-all font-medium">
+            Best fertilizer dose for paddy
+          </button>
+          <button class="chat-prompt-pill px-3 py-1 bg-white hover:bg-green-50 hover:text-green-700 border border-slate-200 rounded-full text-slate-700 transition-all font-medium">
+            How to control Fall Armyworm?
+          </button>
+          <button class="chat-prompt-pill px-3 py-1 bg-white hover:bg-green-50 hover:text-green-700 border border-slate-200 rounded-full text-slate-700 transition-all font-medium">
+            Subsidy for drip irrigation
+          </button>
+        </div>
+
+        <!-- Chat Input Bar -->
+        <div class="p-3 sm:p-4 bg-white border-t border-slate-200 flex items-center gap-2">
+          <input type="text" id="chat-input-text" placeholder="Type your farming query in English, Hindi, etc..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-green-500">
+          <button id="chat-send-btn" class="btn-primary-gradient px-5 py-3 rounded-xl text-white font-bold text-xs uppercase tracking-wide flex items-center gap-1.5 shadow-md">
+            <span>Send</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================================================
+       STATISTICS (Animated Counters)
+       ======================================================================== -->
+  <section id="stats" class="py-20 gradient-cta-bg text-white relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+        
+        <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+          <div class="text-4xl sm:text-5xl lg:text-6xl font-black font-heading text-green-400 stat-counter" data-target="50000" data-suffix="+">
+            0
+          </div>
+          <span class="text-sm sm:text-base font-semibold text-slate-200 mt-2 block">Farmers Supported</span>
+          <p class="text-xs text-slate-400 mt-1">Across 18 Agricultural States</p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+          <div class="text-4xl sm:text-5xl lg:text-6xl font-black font-heading text-sky-400 stat-counter" data-target="95" data-suffix="%">
+            0
+          </div>
+          <span class="text-sm sm:text-base font-semibold text-slate-200 mt-2 block">Disease Detection Accuracy</span>
+          <p class="text-xs text-slate-400 mt-1">Validated by Agri Universities</p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+          <div class="text-4xl sm:text-5xl lg:text-6xl font-black font-heading text-emerald-300 stat-counter" data-target="100" data-suffix="+">
+            0
+          </div>
+          <span class="text-sm sm:text-base font-semibold text-slate-200 mt-2 block">Crop Varieties</span>
+          <p class="text-xs text-slate-400 mt-1">Cereals, Pulses, Fruits & Cash</p>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+          <div class="text-4xl sm:text-5xl lg:text-6xl font-black font-heading text-amber-300 stat-counter" data-target="500" data-suffix="+">
+            0
+          </div>
+          <span class="text-sm sm:text-base font-semibold text-slate-200 mt-2 block">Agricultural Knowledge Articles</span>
+          <p class="text-xs text-slate-400 mt-1">Curated by Agronomists</p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================================================
+       WHY CHOOSE KHET AI (8 Icon Cards)
+       ======================================================================== -->
+  <section class="py-24 bg-white border-b border-slate-200/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
+        <span class="px-3.5 py-1 text-xs font-bold uppercase tracking-wider bg-green-100 text-green-800 rounded-full" data-i18n="why_badge">
+          The Khet AI Advantage
+        </span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-slate-900 tracking-tight" data-i18n="why_title">
+          Why Choose Khet AI
+        </h2>
+        <p class="text-base sm:text-lg text-slate-600" data-i18n="why_desc">
+          Engineered from the ground up to solve the real agronomic and market challenges faced by Indian farmers.
+        </p>
+      </div>
+
+      <!-- 8 Icon Cards (Exact match with user prompt requirements!) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        
+        <!-- 1. AI Powered -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-200 hover:border-green-500 transition-all flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center font-bold text-lg shrink-0">
+            ✔
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base font-heading" data-i18n="why1_title">AI Powered</h3>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed" data-i18n="why1_desc">
+              Trained on 5M+ leaf images with deep neural networks for accurate plant pathology classification.
+            </p>
+          </div>
+        </div>
+
+        <!-- 2. Easy to Use -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-200 hover:border-green-500 transition-all flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center font-bold text-lg shrink-0">
+            ✔
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base font-heading" data-i18n="why2_title">Easy to Use</h3>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed" data-i18n="why2_desc">
+              Simple high-contrast interface designed for effortless operation by farmers of all tech literacy levels.
+            </p>
+          </div>
+        </div>
+
+        <!-- 3. Fast Prediction -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-200 hover:border-green-500 transition-all flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center font-bold text-lg shrink-0">
+            ✔
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base font-heading" data-i18n="why3_title">Fast Prediction</h3>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed" data-i18n="why3_desc">
+              Sub-second diagnostic inference directly in your browser without waiting for lab reports.
+            </p>
+          </div>
+        </div>
+
+        <!-- 4. Climate Smart -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-200 hover:border-green-500 transition-all flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center font-bold text-lg shrink-0">
+            ✔
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base font-heading" data-i18n="why4_title">Climate Smart</h3>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed" data-i18n="why4_desc">
+              Predictive models designed to safeguard harvests against unseasonal rains and erratic heatwaves.
+            </p>
+          </div>
+        </div>
+
+        <!-- 5. Sustainable Agriculture -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-200 hover:border-green-500 transition-all flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center font-bold text-lg shrink-0">
+            ✔
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base font-heading">Sustainable Agriculture</h3>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Promotes organic alternatives, biological controls, and soil health card preservation protocols.
+            </p>
+          </div>
+        </div>
+
+        <!-- 6. Multilingual Support -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-200 hover:border-green-500 transition-all flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center font-bold text-lg shrink-0">
+            ✔
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base font-heading">Multilingual Support</h3>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Supports Hindi, Punjabi, Marathi, Telugu, Gujarati, and English with regional dialect voice models.
+            </p>
+          </div>
+        </div>
+
+        <!-- 7. Accurate Weather -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-200 hover:border-green-500 transition-all flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center font-bold text-lg shrink-0">
+            ✔
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base font-heading">Accurate Weather</h3>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Hyperlocal 1km² Doppler radar feeds with real-time soil moisture and leaf wetness sensor telemetry.
+            </p>
+          </div>
+        </div>
+
+        <!-- 8. Smart Recommendations -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-200 hover:border-green-500 transition-all flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center font-bold text-lg shrink-0">
+            ✔
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base font-heading">Smart Recommendations</h3>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Context-aware insights that cross-reference soil NPK, seasonal market demand, and water budgets.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================================================
+       TESTIMONIALS SECTION
+       ======================================================================== -->
+  <section class="py-24 bg-slate-50 relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
+        <span class="px-3.5 py-1 text-xs font-bold uppercase tracking-wider bg-green-100 text-green-800 rounded-full" data-i18n="test_badge">
+          Farmer Testimonials
+        </span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-heading text-slate-900 tracking-tight" data-i18n="test_title">
+          Trusted by Farmers Across India
+        </h2>
+        <p class="text-base sm:text-lg text-slate-600" data-i18n="test_desc">
+          Hear how Khet AI is creating tangible economic impact in fields from Punjab to Maharashtra.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <!-- Testimonial 1 -->
+        <div class="glass-card p-8 rounded-3xl border border-slate-200/90 flex flex-col justify-between">
+          <div class="space-y-4">
+            <div class="flex text-amber-400 text-lg">★★★★★</div>
+            <p class="text-sm text-slate-700 italic leading-relaxed" data-i18n="test1_quote">
+              "When Yellow Rust struck our wheat crop in Ludhiana last December, Khet AI diagnosed the spores within 10 seconds of clicking a photo. We sprayed Propiconazole immediately and saved our entire 22-acre harvest. Our yield increased by 24%!"
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-700 font-bold flex items-center justify-center text-lg">
+              GS
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-900 text-sm font-heading" data-i18n="test1_author">Sardar Gurpreet Singh</h4>
+              <p class="text-xs text-slate-500" data-i18n="test1_loc">Wheat & Paddy Farmer • Ludhiana, Punjab</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 2 -->
+        <div class="glass-card p-8 rounded-3xl border border-slate-200/90 flex flex-col justify-between">
+          <div class="space-y-4">
+            <div class="flex text-amber-400 text-lg">★★★★★</div>
+            <p class="text-sm text-slate-700 italic leading-relaxed" data-i18n="test2_quote">
+              "The market intelligence feature is unbelievable. Instead of selling my Bt Cotton at ₹6,800 during early harvest, Khet AI advised me to hold. I sold 3 weeks later at ₹7,550/quintal, earning ₹1.2 Lakh extra profit on my 14 acres."
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-green-100 text-green-700 font-bold flex items-center justify-center text-lg">
+              RP
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-900 text-sm font-heading" data-i18n="test2_author">Rameshwar Patil</h4>
+              <p class="text-xs text-slate-500" data-i18n="test2_loc">Cotton & Soybean Grower • Yavatmal, Maharashtra</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 3 -->
+        <div class="glass-card p-8 rounded-3xl border border-slate-200/90 flex flex-col justify-between">
+          <div class="space-y-4">
+            <div class="flex text-amber-400 text-lg">★★★★★</div>
+            <p class="text-sm text-slate-700 italic leading-relaxed" data-i18n="test3_quote">
+              "Being able to speak directly to the AI Assistant in Hindi on my smartphone helped me calculate exact NPK fertigation for my greenhouse tomatoes. Chemical costs dropped by 30% and fruit quality is export-grade."
+            </p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-100 flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-sky-100 text-sky-700 font-bold flex items-center justify-center text-lg">
+              SD
+            </div>
+            <div>
+              <h4 class="font-bold text-slate-900 text-sm font-heading" data-i18n="test3_author">Shrimati Sunita Devi</h4>
+              <p class="text-xs text-slate-500" data-i18n="test3_loc">Horticulture Farmer • Varanasi, Uttar Pradesh</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================================================
+       FAQ SECTION
+       ======================================================================== -->
+  <section class="py-24 bg-white border-b border-slate-200/80">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center space-y-4 mb-16">
+        <span class="px-3.5 py-1 text-xs font-bold uppercase tracking-wider bg-green-100 text-green-800 rounded-full" data-i18n="faq_badge">
+          Frequently Asked Questions
+        </span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold font-heading text-slate-900 tracking-tight" data-i18n="faq_title">
+          Everything You Need to Know
+        </h2>
+        <p class="text-base text-slate-600" data-i18n="faq_desc">
+          Find answers to common questions about Khet AI’s computer vision, weather telemetry, and agronomic features.
+        </p>
+      </div>
+
+      <!-- FAQ Accordion List (Contains all user questions!) -->
+      <div class="space-y-4">
+        
+        <!-- Q1 -->
+        <div class="faq-item border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          <button class="faq-question w-full p-5 text-left bg-slate-50 hover:bg-slate-100 flex items-center justify-between font-bold text-slate-900 text-base font-heading transition-all">
+            <span data-i18n="faq_q1">How does disease detection work?</span>
+            <svg class="faq-icon w-5 h-5 text-slate-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div class="faq-answer hidden p-5 bg-white text-sm text-slate-600 leading-relaxed border-t border-slate-100" data-i18n="faq_a1">
+            Our computer vision engine is powered by deep convolutional neural networks (ResNet & Vision Transformers) trained on over 5 million annotated leaf samples. When you upload or take a leaf photo, the model examines cellular discoloration, lesion shapes, and mycelial growth patterns to classify the disease with up to 95% accuracy and provide immediate biological and chemical remedy prescriptions.
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="faq-item border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          <button class="faq-question w-full p-5 text-left bg-slate-50 hover:bg-slate-100 flex items-center justify-between font-bold text-slate-900 text-base font-heading transition-all">
+            <span data-i18n="faq_q2">Is weather data real-time?</span>
+            <svg class="faq-icon w-5 h-5 text-slate-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div class="faq-answer hidden p-5 bg-white text-sm text-slate-600 leading-relaxed border-t border-slate-100" data-i18n="faq_a2">
+            Yes! Khet AI synchronizes real-time satellite telemetry from ISRO, Sentinel, and NOAA satellites combined with 1km² micro-doppler radar stations. The telemetry updates every 15 minutes to alert you regarding sudden rain bursts, wind drift directions for spraying, and humidity levels that favor fungal spore germination.
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="faq-item border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          <button class="faq-question w-full p-5 text-left bg-slate-50 hover:bg-slate-100 flex items-center justify-between font-bold text-slate-900 text-base font-heading transition-all">
+            <span data-i18n="faq_q3">Can I grow new crops?</span>
+            <svg class="faq-icon w-5 h-5 text-slate-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div class="faq-answer hidden p-5 bg-white text-sm text-slate-600 leading-relaxed border-t border-slate-100" data-i18n="faq_a3">
+            Absolutely. Our AI Crop Recommendation engine evaluates your soil type (Alluvial, Black, Red, Sandy), available irrigation sources, seasonal climate windows, and budget to recommend high-yield alternative crops that you may not have previously cultivated, including projected profit margins per acre.
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="faq-item border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          <button class="faq-question w-full p-5 text-left bg-slate-50 hover:bg-slate-100 flex items-center justify-between font-bold text-slate-900 text-base font-heading transition-all">
+            <span data-i18n="faq_q4">How accurate are predictions?</span>
+            <svg class="faq-icon w-5 h-5 text-slate-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div class="faq-answer hidden p-5 bg-white text-sm text-slate-600 leading-relaxed border-t border-slate-100" data-i18n="faq_a4">
+            In field validation trials conducted across state agricultural universities, Khet AI achieved a 95.8% diagnostic accuracy across 100+ major crop diseases. Mandi price forecasts maintain an 89% directional accuracy over 7-to-14 day windows based on multi-year APMC price seasonality models.
+          </div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="faq-item border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          <button class="faq-question w-full p-5 text-left bg-slate-50 hover:bg-slate-100 flex items-center justify-between font-bold text-slate-900 text-base font-heading transition-all">
+            <span data-i18n="faq_q5">Is the platform free?</span>
+            <svg class="faq-icon w-5 h-5 text-slate-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div class="faq-answer hidden p-5 bg-white text-sm text-slate-600 leading-relaxed border-t border-slate-100" data-i18n="faq_a5">
+            Yes! The fundamental features of Khet AI—including Crop Disease Diagnosis, Hyperlocal Weather Advisories, Crop Knowledge Guides, and Mandi Price Trackers—are completely free for individual farmers. We also offer advanced satellite drone mapping and enterprise FPO co-op analytics for large organizations.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================================================
+       CONTACT SECTION
+       ======================================================================== -->
+  <section id="contact" class="py-24 bg-slate-50 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        
+        <!-- Left Side: Contact Information & Helpline -->
+        <div class="lg:col-span-5 space-y-6">
+          <span class="px-3.5 py-1 text-xs font-bold uppercase tracking-wider bg-green-100 text-green-800 rounded-full" data-i18n="contact_badge">
+            Farmer Support & Advisory
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold font-heading text-slate-900 tracking-tight" data-i18n="contact_title">
+            Have Questions? We Are Here to Help.
+          </h2>
+          <p class="text-base text-slate-600 leading-relaxed" data-i18n="contact_desc">
+            Connect with our agronomy team, request customized crop advisory for your village, or report feedback on our AI models.
+          </p>
+
+          <div class="space-y-4 pt-4">
+            <div class="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
+              <div class="w-12 h-12 rounded-xl bg-green-100 text-green-600 flex items-center justify-center text-xl shrink-0">
+                📞
+              </div>
+              <div>
+                <span class="text-xs text-slate-400 uppercase font-semibold" data-i18n="contact_helpline_title">Toll-Free Kisan Helpline</span>
+                <p class="text-base font-bold text-slate-900 font-heading">1800-200-KHET (5438)</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
+              <div class="w-12 h-12 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center text-xl shrink-0">
+                ✉️
+              </div>
+              <div>
+                <span class="text-xs text-slate-400 uppercase font-semibold" data-i18n="contact_email_title">Direct Email Support</span>
+                <p class="text-base font-bold text-slate-900 font-heading">support@khetai.com</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
+              <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+                📍
+              </div>
+              <div>
+                <span class="text-xs text-slate-400 uppercase font-semibold" data-i18n="contact_office_title">Agritech Research Labs</span>
+                <p class="text-sm font-bold text-slate-900" data-i18n="contact_office_desc">Pusa Road, New Delhi & Bengaluru, India</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side: Clean Contact Form (As requested!) -->
+        <div class="lg:col-span-7 bg-white p-8 sm:p-10 rounded-3xl border border-slate-200/90 shadow-xl">
+          <h3 class="text-2xl font-bold text-slate-900 font-heading mb-2" data-i18n="contact_form_title">Send Us a Message</h3>
+          <p class="text-xs text-slate-500 mb-6" data-i18n="contact_form_desc">Our dedicated agronomists respond within 24 hours.</p>
+
+          <form id="khet-contact-form" class="space-y-4">
+            <div>
+              <label class="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1" data-i18n="contact_name_label">Name</label>
+              <input type="text" required placeholder="Enter your full name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-green-500 transition-all">
+            </div>
+
+            <div>
+              <label class="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1" data-i18n="contact_email_label">Email</label>
+              <input type="email" required placeholder="Enter your email address" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-green-500 transition-all">
+            </div>
+
+            <div>
+              <label class="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1" data-i18n="contact_message_label">Message</label>
+              <textarea rows="4" required placeholder="Write your question, farm requirements, or feedback..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-green-500 transition-all"></textarea>
+            </div>
+
+            <button type="submit" class="w-full btn-primary-gradient py-4 rounded-xl text-white font-bold text-sm uppercase tracking-wider shadow-lg shadow-green-500/25 flex items-center justify-center gap-2">
+              <span data-i18n="contact_submit_btn">Send Message</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ========================================================================
+       FOOTER
+       ======================================================================== -->
+  <footer class="bg-slate-950 text-slate-400 pt-16 pb-12 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800">
+        
+        <!-- Brand Info -->
+        <div class="lg:col-span-2 space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-green-500 p-2 text-white flex items-center justify-center font-bold">
+              🌾
+            </div>
+            <span class="text-2xl font-black font-heading tracking-tight text-white">Khet<span class="text-green-500">AI</span></span>
+          </div>
+          <p class="text-sm text-slate-400 max-w-sm leading-relaxed" data-i18n="footer_desc">
+            Empowering Farmers Through Artificial Intelligence. Building resilient, climate-smart agriculture for tomorrow.
+          </p>
+          <div class="flex items-center space-x-3 pt-2">
+            <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-green-600 hover:text-white flex items-center justify-center text-slate-400 transition-all">Twitter</a>
+            <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-green-600 hover:text-white flex items-center justify-center text-slate-400 transition-all">YouTube</a>
+            <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-green-600 hover:text-white flex items-center justify-center text-slate-400 transition-all">LinkedIn</a>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div>
+          <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4 font-heading" data-i18n="footer_col_solutions">Solutions</h4>
+          <ul class="space-y-2.5 text-xs">
+            <li><a href="#disease-detection" class="hover:text-green-400 transition-all">Crop Disease Vision</a></li>
+            <li><a href="#weather" class="hover:text-green-400 transition-all">Hyperlocal Weather</a></li>
+            <li><a href="#crop-recommendation" class="hover:text-green-400 transition-all">Soil & Crop Matching</a></li>
+            <li><a href="#market-prices" class="hover:text-green-400 transition-all">Live Mandi Prices</a></li>
+            <li><a href="#ai-assistant" class="hover:text-green-400 transition-all">AI Agronomist Bot</a></li>
+          </ul>
+        </div>
+
+        <!-- Crop Encyclopedia -->
+        <div>
+          <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4 font-heading" data-i18n="footer_col_guides">Crop Guides</h4>
+          <ul class="space-y-2.5 text-xs">
+            <li><a href="#crop-guide" class="hover:text-green-400 transition-all">Wheat Cultivation</a></li>
+            <li><a href="#crop-guide" class="hover:text-green-400 transition-all">Basmati Rice Guide</a></li>
+            <li><a href="#crop-guide" class="hover:text-green-400 transition-all">Bt Cotton Management</a></li>
+            <li><a href="#crop-guide" class="hover:text-green-400 transition-all">Tomato Trellising</a></li>
+            <li><a href="#crop-guide" class="hover:text-green-400 transition-all">Mustard Siliqua Care</a></li>
+          </ul>
+        </div>
+
+        <!-- Schemes & Legal -->
+        <div>
+          <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4 font-heading" data-i18n="footer_col_schemes">Government Schemes</h4>
+          <ul class="space-y-2.5 text-xs">
+            <li><a href="#" onclick="document.getElementById('open-schemes-calc-btn').click(); return false;" class="hover:text-green-400 transition-all">PM-KISAN Samman Nidhi</a></li>
+            <li><a href="#" onclick="document.getElementById('open-schemes-calc-btn').click(); return false;" class="hover:text-green-400 transition-all">PMFBY Fasal Bima</a></li>
+            <li><a href="#" onclick="document.getElementById('open-schemes-calc-btn').click(); return false;" class="hover:text-green-400 transition-all">PM-KUSUM Solar Pumps</a></li>
+            <li><a href="#" onclick="document.getElementById('open-schemes-calc-btn').click(); return false;" class="hover:text-green-400 transition-all">Micro-Irrigation Subsidies</a></li>
+            <li><a href="#contact" class="hover:text-green-400 transition-all">Privacy Policy & Terms</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+        <p data-i18n="footer_rights">© 2026 Khet AI Inc. All rights reserved. Empowering Farmers Through Artificial Intelligence.</p>
+        <p class="text-slate-400" data-i18n="footer_made_with">Made with 🌾 for Climate-Smart Agriculture</p>
+      </div>
+
+    </div>
+  </footer>
+
+
+  <!-- ========================================================================
+       MODAL: CROP KNOWLEDGE 9-POINT MASTER GUIDE
+       ======================================================================== -->
+  <div id="crop-knowledge-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative my-8 max-h-[90vh] overflow-y-auto">
+      
+      <!-- Close Button -->
+      <button id="crop-modal-close" class="absolute top-6 right-6 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-lg transition-all">
+        ✕
+      </button>
+
+      <!-- Modal Body (Injected by JS) -->
+      <div id="crop-modal-content">
+        <!-- Rendered via JS with all 9 attributes -->
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ========================================================================
+       MODAL: GOVERNMENT SCHEMES ELIGIBILITY CALCULATOR
+       ======================================================================== -->
+  <div id="schemes-calculator-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative">
+      
+      <button id="schemes-modal-close" class="absolute top-6 right-6 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-lg transition-all">
+        ✕
+      </button>
+
+      <div class="flex items-center gap-2.5 mb-2">
+        <span class="text-2xl">🏛️</span>
+        <h3 class="text-xl font-bold text-slate-900 font-heading">Government Subsidy Checker</h3>
+      </div>
+      <p class="text-xs text-slate-500 mb-5">Quickly determine your subsidy percentage for central & state agritech schemes.</p>
+
+      <form id="scheme-calc-form" class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-slate-700 block mb-1">Landholding Category</label>
+          <select id="scheme-land-size" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800">
+            <option value="marginal">Marginal Farmer (&lt; 1 Hectare / 2.5 Acres)</option>
+            <option value="small">Small Farmer (1 - 2 Hectares / 5 Acres)</option>
+            <option value="medium">Medium to Large Farmer (&gt; 2 Hectares)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-slate-700 block mb-1">Scheme Category Interest</label>
+          <select id="scheme-interest" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800">
+            <option value="solar">PM-KUSUM Solar Irrigation Pumps</option>
+            <option value="drip">PMKSY Per Drop More Crop (Drip & Sprinkler)</option>
+            <option value="insurance">PMFBY Comprehensive Crop Insurance</option>
+            <option value="direct">PM-KISAN DBT Income Assistance</option>
+          </select>
+        </div>
+
+        <button type="submit" class="w-full btn-primary-gradient py-3 rounded-xl text-white font-bold text-xs uppercase tracking-wide">
+          Check My Entitlements
+        </button>
+      </form>
+
+      <div id="scheme-result-area" class="mt-4">
+        <!-- Rendered via JS -->
+      </div>
+
+    </div>
+  </div>
+
+  <!-- External JS Application File -->
+  <script src="translations.js"></script>
+  <script src="app.js"></script>
+
+  <!-- ========================================================================
+       MODAL: SUBSIDY DETAILS & DOCUMENT CHECKLIST
+       ======================================================================== -->
+  <div id="subsidy-details-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 relative my-8 max-h-[90vh] overflow-y-auto">
+      
+      <!-- Close Button -->
+      <button id="subsidy-modal-close" class="absolute top-6 right-6 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center font-bold text-lg transition-all" aria-label="Close modal">
+        ✕
+      </button>
+
+      <!-- Modal Body (Injected by JS) -->
+      <div id="subsidy-modal-content">
+        <!-- Rendered via JS -->
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       FLOATING VOICE PLAYER TOOLBAR
+       ======================================================================== -->
+  <aside id="floating-voice-player" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden bg-slate-900/95 dark:bg-slate-950/95 backdrop-blur-xl border border-green-500/40 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-4 transition-all duration-300 max-w-xl w-[92%] sm:w-auto" role="region" aria-label="Voice Reader Toolbar">
+    <div class="flex items-center gap-2.5">
+      <span class="w-3 h-3 rounded-full bg-green-500 animate-ping"></span>
+      <span class="text-lg">🔊</span>
+      <div class="max-w-[150px] sm:max-w-[220px] truncate">
+        <span class="text-[10px] text-green-400 font-bold uppercase tracking-wider block" data-i18n="voice_playing">Reading aloud...</span>
+        <span id="voice-player-title" class="text-xs font-semibold truncate block">Khet AI Voice Reader</span>
+      </div>
+    </div>
+    
+    <div class="flex items-center gap-2 border-l border-slate-700 pl-3">
+      <!-- Speed Buttons -->
+      <div class="hidden sm:flex items-center gap-1">
+        <button type="button" class="voice-speed-btn px-2 py-1 rounded-lg text-[10px] font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all" data-speed="0.75">0.75x</button>
+        <button type="button" class="voice-speed-btn px-2 py-1 rounded-lg text-[10px] font-bold bg-green-600 text-white transition-all" data-speed="1.0">1.0x</button>
+        <button type="button" class="voice-speed-btn px-2 py-1 rounded-lg text-[10px] font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all" data-speed="1.25">1.25x</button>
+      </div>
+
+      <!-- Pause / Resume -->
+      <button type="button" id="global-voice-pause-btn" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold transition-all border border-slate-700">
+        ⏸️ <span data-i18n="voice_pause">Pause</span>
+      </button>
+
+      <!-- Stop -->
+      <button type="button" id="global-voice-stop-btn" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm">
+        ⏹️ <span data-i18n="voice_stop">Stop</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Global Toast Notification -->
+  <div id="khet-global-toast" class="fixed bottom-6 right-6 z-50 hidden bg-slate-900/95 dark:bg-slate-950/95 text-white text-xs font-semibold px-4 py-3 rounded-2xl border border-green-500/50 shadow-2xl backdrop-blur-md max-w-sm transition-all flex items-center gap-2.5">
+    <span class="toast-icon text-base">🌾</span>
+    <span class="toast-message">Notification message</span>
+  </div>
+</body>
+</html>
