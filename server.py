@@ -15,7 +15,7 @@ import re
 import urllib.parse
 import urllib.request
 import urllib.error
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from PIL import Image
 import numpy as np
 
@@ -36,7 +36,7 @@ def load_dotenv(env_path=None):
                         k, v = line.split('=', 1)
                         k = k.strip()
                         v = v.strip().strip('"').strip("'")
-                        if k and k not in os.environ:
+                        if k:
                             os.environ[k] = v
         except Exception as e:
             print(f"Warning: Failed to load .env: {e}")
@@ -1324,7 +1324,10 @@ def call_gemini_chat(message, history=None, crop_data=None, soil_data=None, weat
             "reply": mock_gemini_agronomist_reply(message, history, crop_data, soil_data, weather_data)
         }
 
-    api_key = GEMINI_API_KEY.strip() if GEMINI_API_KEY else ''
+    api_key = os.environ.get('GEMINI_API_KEY', '').strip()
+    if not api_key:
+        load_dotenv()
+        api_key = os.environ.get('GEMINI_API_KEY', '').strip()
     if not api_key or api_key in ['YOUR_API_KEY', 'undefined']:
         # If simulated key error requested or unconfigured, return user-friendly message
         return {
@@ -1382,7 +1385,7 @@ def call_gemini_chat(message, history=None, crop_data=None, soil_data=None, weat
         }
     }
 
-    models = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"]
+    models = ["gemini-flash-lite-latest", "gemini-flash-latest", "gemini-pro-latest", "gemini-2.5-flash", "gemini-1.5-flash"]
     last_error = None
 
     for model_name in models:
@@ -1429,16 +1432,23 @@ class KhetRequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         super().end_headers()
 
+    def send_json(self, status_code, data):
+        body_bytes = json.dumps(data).encode('utf-8')
+        self.send_response(status_code)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', str(len(body_bytes)))
+        self.send_header('Connection', 'close')
+        self.end_headers()
+        self.wfile.write(body_bytes)
+
     def do_OPTIONS(self):
         self.send_response(200)
+        self.send_header('Connection', 'close')
         self.end_headers()
 
     def do_GET(self):
         if self.path == '/api/health':
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({"status": "healthy", "service": "Khet AI Agritech API", "vision": "Crop & Disease Vision Multi-Engine"}).encode('utf-8'))
+            self.send_json(200, {"status": "healthy", "service": "Khet AI Agritech API", "vision": "Crop & Disease Vision Multi-Engine"})
             return
         super().do_GET()
 
@@ -1455,24 +1465,16 @@ class KhetRequestHandler(SimpleHTTPRequestHandler):
                 weather_data = payload.get('weatherData', {})
 
                 if not message or not str(message).strip():
-                    self.send_response(400)
-                    self.send_header('Content-Type', 'application/json')
-                    self.end_headers()
-                    self.wfile.write(json.dumps({"status": "error", "message": "Message is required"}).encode('utf-8'))
+                    self.send_json(400, {"status": "error", "message": "Message is required"})
                     return
 
                 reconciled_data = payload.get('reconciledDecision') or payload.get('reconciledData')
                 mock = payload.get('mock', False) or payload.get('test_mode', False)
                 res = call_gemini_chat(message, history, crop_data, soil_data, weather_data, mock=mock, reconciled_data=reconciled_data)
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps(res).encode('utf-8'))
+                self.send_json(200, res)
             except Exception as e:
-                self.send_response(500)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({"status": "error", "message": "Sorry, I couldn't connect to the AI service right now. Please try again."}).encode('utf-8'))
+                print(f"Exception in /api/chat: {e}")
+                self.send_json(500, {"status": "error", "message": "Sorry, I couldn't connect to the AI service right now. Please try again."})
             return
 
         if self.path == '/api/reconcile':
@@ -1560,15 +1562,9 @@ class KhetRequestHandler(SimpleHTTPRequestHandler):
                     **res
                 }
 
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps(response_payload).encode('utf-8'))
+                self.send_json(200, response_payload)
             except Exception as e:
-                self.send_response(500)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
+                self.send_json(500, {"status": "error", "message": str(e)})
             return
         if self.path == '/api/diagnose-query':
             try:
@@ -1648,7 +1644,7 @@ class KhetRequestHandler(SimpleHTTPRequestHandler):
 
 def main():
     server_address = ('', PORT)
-    httpd = HTTPServer(server_address, KhetRequestHandler)
+    httpd = ThreadingHTTPServer(server_address, KhetRequestHandler)
     print(f"Khet AI Server running on http://127.0.0.1:{PORT}")
     try:
         httpd.serve_forever()
