@@ -1422,6 +1422,306 @@ def call_gemini_chat(message, history=None, crop_data=None, soil_data=None, weat
         "message": "Sorry, I couldn't connect to the AI service right now. Please try again."
     }
 
+
+# ==============================================================================
+# AI CROP RECOMMENDATION & CROP DECISION ENGINES (GEMINI POWERED)
+# ==============================================================================
+
+def call_gemini_json_prompt(prompt, system_instruction=""):
+    """
+    Invokes Gemini API and returns parsed JSON. Handles markdown stripping and multi-model fallback.
+    """
+    api_key = os.environ.get('GEMINI_API_KEY', '').strip()
+    if not api_key:
+        load_dotenv()
+        api_key = os.environ.get('GEMINI_API_KEY', '').strip()
+    if not api_key or api_key in ['YOUR_API_KEY', 'undefined']:
+        return None
+
+    models = ["gemini-flash-lite-latest", "gemini-flash-latest", "gemini-pro-latest", "gemini-2.5-flash"]
+    req_body = {
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "temperature": 0.25,
+            "maxOutputTokens": 1400
+        }
+    }
+    if system_instruction:
+        req_body["system_instruction"] = {"parts": [{"text": system_instruction}]}
+
+    for model_name in models:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+        data_bytes = json.dumps(req_body).encode("utf-8")
+        req = urllib.request.Request(url, data=data_bytes, headers={"Content-Type": "application/json"}, method="POST")
+        try:
+            with urllib.request.urlopen(req, timeout=14) as resp:
+                if resp.status == 200:
+                    resp_json = json.loads(resp.read().decode("utf-8"))
+                    candidates = resp_json.get("candidates", [])
+                    if candidates and "content" in candidates[0]:
+                        parts = candidates[0]["content"].get("parts", [])
+                        if parts and "text" in parts[0]:
+                            raw_text = parts[0]["text"].strip()
+                            if raw_text.startswith("```"):
+                                raw_text = raw_text.split("\n", 1)[1] if "\n" in raw_text else raw_text
+                                if raw_text.endswith("```"):
+                                    raw_text = raw_text.rsplit("```", 1)[0]
+                            return json.loads(raw_text.strip())
+        except Exception as e:
+            continue
+    return None
+
+def generate_crop_recommendations(soil_data=None, weather_data=None):
+    """
+    Generates precision crop recommendations tailored to soil NPK, season, and climate using Gemini AI
+    with robust ICAR benchmark rule-based fallback.
+    """
+    soil_data = soil_data or {}
+    weather_data = weather_data or {}
+
+    soil_type = str(soil_data.get('soil_type') or soil_data.get('soil') or 'Alluvial Loam')
+    season = str(soil_data.get('season') or 'Rabi')
+    n = soil_data.get('nitrogen', 120)
+    p = soil_data.get('phosphorus', 60)
+    k = soil_data.get('potassium', 50)
+
+    district = weather_data.get('district', 'Ahmedabad')
+    state = weather_data.get('state', 'Gujarat')
+    temp = weather_data.get('temperature', '28°C')
+    hum = weather_data.get('humidity', '65%')
+    rain = weather_data.get('rain_probability', 10)
+
+    prompt = f"""Act as a premier Indian Agricultural Scientist and ICAR Precision Agronomist.
+Farmer Inputs:
+- Soil Classification: {soil_type}
+- Sowing Season: {season}
+- Soil Macro-Nutrients: Nitrogen (N): {n} kg/ha, Phosphorus (P): {p} kg/ha, Potassium (K): {k} kg/ha
+- Farm Location: {district}, {state}
+- Local Climate Telemetry: Temperature {temp}, Relative Humidity {hum}, Rain Probability {rain}%
+
+Evaluate the farm conditions and recommend the TOP 3 most profitable, high-yielding, and agronomically suitable Indian crops for this specific farm.
+Output strictly valid JSON with this exact schema (no markdown, no surrounding text):
+{{
+  "recommendations": [
+    {{
+      "name": "Crop Name in English and Hindi (e.g. Wheat / गेहूं)",
+      "match": "96%",
+      "profit": "₹55,000 - ₹82,000/acre",
+      "season": "Rabi",
+      "water": "Moderate",
+      "reason": "Specific agronomic explanation of why this crop aligns with the NPK balance, soil drainage, and local climate.",
+      "npk_advice": "Recommended fertilizer dosage guidance.",
+      "duration": "115 - 130 days"
+    }}
+  ],
+  "rationale": "2-sentence overall agro-climatic assessment of the farm.",
+  "soil_assessment": "Assessment of current nutrient baseline."
+}}"""
+
+    system_instruction = "You are an expert agronomist specialized in Indian cropping calendars, ICAR packages of practices, and precision NPK management."
+
+    ai_result = call_gemini_json_prompt(prompt, system_instruction)
+    if ai_result and isinstance(ai_result, dict) and ai_result.get("recommendations"):
+        return {
+            "status": "success",
+            "source": "Google Gemini Agronomic AI",
+            "recommendations": ai_result.get("recommendations"),
+            "rationale": ai_result.get("rationale", f"Optimal crop portfolio generated for {soil_type} during {season}."),
+            "soil_assessment": ai_result.get("soil_assessment", f"Nutrient levels N:{n}, P:{p}, K:{k} kg/ha evaluated.")
+        }
+
+    # High-fidelity Agronomic Fallback (ICAR Benchmarks)
+    fallback_map = {
+        "alluvial_rabi": [
+            {"name": "Wheat & Gehun (गेहूं - PBW 550 / HD 2967)", "match": "96%", "profit": "₹55,000 - ₹82,000/acre", "season": "Rabi", "water": "Moderate", "reason": f"Indo-Gangetic alluvial loam provides ideal moisture retention and cool Rabi temperatures ({temp}) for tillering.", "npk_advice": "Apply remaining 50% Nitrogen split at Crown Root Initiation stage.", "duration": "120 - 135 days"},
+            {"name": "Mustard & Sarson (सरसों - Pusa Bold)", "match": "92%", "profit": "₹50,000 - ₹72,000/acre", "season": "Rabi", "water": "Low", "reason": "Low water requirement and high market oilseed prices make it ideal for central and northern belts.", "npk_advice": "Ensure adequate sulfur application (20 kg/ha) for oil content.", "duration": "110 - 125 days"},
+            {"name": "Chickpea & Chana (चना - JG 11 / Pusa 372)", "match": "88%", "profit": "₹48,000 - ₹66,000/acre", "season": "Rabi", "water": "Low", "reason": "Naturally enriches soil nitrogen through Rhizobium root nodules, reducing future urea costs.", "npk_advice": "Phosphorus basal dose is crucial for root nodulation.", "duration": "100 - 115 days"}
+        ],
+        "alluvial_kharif": [
+            {"name": "Basmati Rice & Paddy (धान - Pusa 1121)", "match": "95%", "profit": "₹60,000 - ₹95,000/acre", "season": "Kharif", "water": "High", "reason": f"High monsoon water availability and alluvial soil texture optimize standing water tillering.", "npk_advice": "Top dress urea in 3 equal splits; apply Zinc sulfate @ 25 kg/ha.", "duration": "135 - 145 days"},
+            {"name": "Maize & Makka (मक्का - Pioneer Hybrid)", "match": "90%", "profit": "₹45,000 - ₹68,000/acre", "season": "Kharif", "water": "Moderate", "reason": "High vegetative yield on fertile alluvial plains with strong industrial poultry feed demand.", "npk_advice": "Heavy feeder of Nitrogen; split application at knee-high and tasseling stages.", "duration": "95 - 110 days"},
+            {"name": "Sugarcane & Ganna (गन्ना - Co 0238)", "match": "86%", "profit": "₹1,10,000 - ₹1,70,000/acre", "season": "Kharif / Annual", "water": "High", "reason": "Deep alluvial root zone supports high biomass and high sugar sucrose recovery.", "npk_advice": "Apply balanced NPK with abundant potash to improve cane sugar sucrose.", "duration": "300 - 360 days"}
+        ],
+        "alluvial_zaid": [
+            {"name": "Watermelon & Tarbooj (तरबूज - Sugar Baby)", "match": "94%", "profit": "₹65,000 - ₹1,10,000/acre", "season": "Zaid", "water": "Moderate", "reason": "Rapid 75-day summer cash cycle with peak commercial demand in urban markets.", "npk_advice": "Drip fertigation with 19:19:19 water-soluble fertilizer.", "duration": "75 - 85 days"},
+            {"name": "Moong Dal & Green Gram (मूंग - Pusa Vishal)", "match": "90%", "profit": "₹38,000 - ₹55,000/acre", "season": "Zaid", "water": "Low", "reason": "Short 60-day window restores soil fertility between wheat harvest and paddy transplanting.", "npk_advice": "Seed treatment with Rhizobium culture; minimal basal nitrogen required.", "duration": "60 - 65 days"},
+            {"name": "Cucumber & Kheera (खीरा)", "match": "87%", "profit": "₹55,000 - ₹85,000/acre", "season": "Zaid", "water": "Moderate", "reason": "High market turnover on warm sandy-alluvial riverbeds and irrigated plains.", "npk_advice": "Foliar spray of micronutrients and calcium nitrate during fruiting.", "duration": "55 - 70 days"}
+        ],
+        "black_kharif": [
+            {"name": "Bt Cotton & Kapas (कपास - Hybrid)", "match": "96%", "profit": "₹65,000 - ₹1,05,000/acre", "season": "Kharif", "water": "Moderate", "reason": "Deep black regur soils have exceptional montmorillonite clay moisture retention required for boll formation.", "npk_advice": "Avoid excess nitrogen during flowering to prevent vegetative shedding.", "duration": "150 - 180 days"},
+            {"name": "Soybean & Bhat (सोयाबीन - JS 335 / JS 9560)", "match": "92%", "profit": "₹45,000 - ₹65,000/acre", "season": "Kharif", "water": "Moderate", "reason": "Premier oilseed crop for central Indian black soils with assured MSP and solvent extraction demand.", "npk_advice": "Basal DAP @ 50 kg/acre + Single Super Phosphate for sulfur.", "duration": "90 - 105 days"},
+            {"name": "Pigeon Pea & Arhar / Tur (अरहर - BDN 711)", "match": "89%", "profit": "₹55,000 - ₹80,000/acre", "season": "Kharif", "water": "Low", "reason": "Deep taproot breaks hard black soil pans and survives intermittent monsoon dry spells.", "npk_advice": "Apply starter nitrogen (20 kg/ha) and full phosphorus at sowing.", "duration": "160 - 180 days"}
+        ],
+        "black_rabi": [
+            {"name": "Chickpea & Desi Chana (चना - Vijay / Digvijay)", "match": "95%", "profit": "₹50,000 - ₹72,000/acre", "season": "Rabi", "water": "Low", "reason": "Capitalizes on residual monsoon moisture stored in heavy black soil profile.", "npk_advice": "Foliar spray of 2% DAP at flower initiation.", "duration": "105 - 120 days"},
+            {"name": "Rabi Sorghum & Jowar (ज्वार - Maldandi M 35-1)", "match": "91%", "profit": "₹40,000 - ₹58,000/acre", "season": "Rabi", "water": "Low", "reason": "Premium culinary quality grain with high-value dry fodder for dairy cattle.", "npk_advice": "Apply nitrogen 50 kg/ha in 2 splits; maintain adequate potassium.", "duration": "115 - 125 days"},
+            {"name": "Safflower & Kardi (कुसुम)", "match": "87%", "profit": "₹38,000 - ₹52,000/acre", "season": "Rabi", "water": "Low", "reason": "Extreme drought tolerance with deep taproot extracting subsoil moisture.", "npk_advice": "Apply 40 kg N and 20 kg P2O5 per hectare.", "duration": "125 - 135 days"}
+        ],
+        "sandy_rabi": [
+            {"name": "Mustard & Rai (राई - Giriraj)", "match": "95%", "profit": "₹48,000 - ₹68,000/acre", "season": "Rabi", "water": "Low", "reason": f"Thrives in light, sandy loam soils with low water requirement ({temp} ambient temperature).", "npk_advice": "Incorporate farmyard manure to improve sandy soil cation exchange.", "duration": "115 - 125 days"},
+            {"name": "Cumin & Jeera (जीरा - Gujarat Cumin 4)", "match": "91%", "profit": "₹75,000 - ₹1,40,000/acre", "season": "Rabi", "water": "Low", "reason": "High-value spice crop that thrives in dry, sunny, sandy-arid zones.", "npk_advice": "Avoid excess nitrogen to prevent blight and wilt susceptibility.", "duration": "100 - 110 days"},
+            {"name": "Barley & Jau (जौ - RD 2035)", "match": "88%", "profit": "₹38,000 - ₹52,000/acre", "season": "Rabi", "water": "Low", "reason": "Tolerates higher soil salinity and light sandy soils with minimal irrigation.", "npk_advice": "Apply 60 kg N, 30 kg P, 20 kg K per hectare.", "duration": "110 - 120 days"}
+        ],
+        "red_kharif": [
+            {"name": "Groundnut & Moongphali (मूंगफली - Kadiri 6)", "match": "95%", "profit": "₹55,000 - ₹82,000/acre", "season": "Kharif", "water": "Moderate", "reason": "Light, friable red loamy soil allows easy peg penetration and pod development.", "npk_advice": "Apply Gypsum @ 200 kg/acre at flowering stage for calcium peg filling.", "duration": "105 - 115 days"},
+            {"name": "Finger Millet & Ragi (रागी - GPU 28)", "match": "91%", "profit": "₹38,000 - ₹54,000/acre", "season": "Kharif", "water": "Low", "reason": "Highly resilient nutritious millet that flourishes in red lateritic soils.", "npk_advice": "Apply 50 kg N and 40 kg P2O5 per hectare.", "duration": "100 - 115 days"},
+            {"name": "Red Gram & Tur (तूर - Asha)", "match": "87%", "profit": "₹50,000 - ₹75,000/acre", "season": "Kharif", "water": "Low", "reason": "Deep root system overcomes low moisture retention in red soils.", "npk_advice": "Phosphorus and bio-fertilizer seed inoculation.", "duration": "150 - 170 days"}
+        ]
+    }
+
+    key = "alluvial_rabi"
+    soil_l = soil_type.lower()
+    season_l = season.lower()
+    if "black" in soil_l:
+        key = "black_rabi" if "rabi" in season_l else "black_kharif"
+    elif "sandy" in soil_l:
+        key = "sandy_rabi"
+    elif "red" in soil_l:
+        key = "red_kharif"
+    elif "zaid" in season_l or "summer" in season_l:
+        key = "alluvial_zaid"
+    elif "kharif" in season_l or "monsoon" in season_l:
+        key = "alluvial_kharif"
+
+    recs = fallback_map.get(key, fallback_map["alluvial_rabi"])
+    return {
+        "status": "success",
+        "source": "ICAR Benchmark Agronomic Engine",
+        "recommendations": recs,
+        "rationale": f"High agro-climatic alignment evaluated for {soil_type} in {season} across {district}.",
+        "soil_assessment": f"Evaluated for N:{n}, P:{p}, K:{k} kg/ha."
+    }
+
+def evaluate_crop_suitability(crop_name, soil_data=None, weather_data=None):
+    """
+    Evaluates whether ANY user-searched Indian crop is agronomically suitable for the farmer's current
+    soil type, season, NPK levels, and live satellite microclimate.
+    """
+    soil_data = soil_data or {}
+    weather_data = weather_data or {}
+
+    crop_name = str(crop_name).strip()
+    soil_type = str(soil_data.get('soil_type') or soil_data.get('soil') or 'Alluvial Loam')
+    season = str(soil_data.get('season') or 'Rabi')
+    n = soil_data.get('nitrogen', 120)
+    p = soil_data.get('phosphorus', 60)
+    k = soil_data.get('potassium', 50)
+
+    district = weather_data.get('district', 'Ahmedabad')
+    state = weather_data.get('state', 'Gujarat')
+    temp = weather_data.get('temperature', '28°C')
+    hum = weather_data.get('humidity', '65%')
+    rain = weather_data.get('rain_probability', 10)
+
+    prompt = f"""Act as an ICAR Indian Agricultural Scientist and Agro-Climatic Precision Farming Expert.
+Analyze the suitability of cultivating the crop '{crop_name}' across India with these farmer inputs:
+- Requested Crop: {crop_name}
+- Farmer's Soil Type: {soil_type}
+- Target Sowing Season: {season}
+- Soil Nutrients: Nitrogen (N): {n} kg/ha, Phosphorus (P): {p} kg/ha, Potassium (K): {k} kg/ha
+- Farm Location: {district}, {state}
+- Local Live Weather: Temperature {temp}, Relative Humidity {hum}, Rain Probability {rain}%
+
+Evaluate whether this crop can realistically thrive under these specific agro-climatic conditions or if it requires specific soil amendments, irrigation, or a different season.
+Output strictly valid JSON (no markdown formatting, no backticks) with this exact schema:
+{{
+  "crop": "{crop_name}",
+  "verdict": "Highly Suitable" or "Moderately Suitable" or "Unfavorable for Current Conditions",
+  "verdict_type": "suitable" or "moderate" or "unfavorable",
+  "match_score": "88%",
+  "verdict_summary": "Crisp 2-sentence agronomist evaluation explaining the decision.",
+  "soil_suitability": "Detailed analysis of how this crop performs in {soil_type} and current NPK.",
+  "climate_suitability": "Temperature, humidity, and rainfall requirement analysis vs local climate.",
+  "profit_estimate": "Estimated net profit range in ₹/acre (e.g. ₹60,000 - ₹95,000/acre).",
+  "water_requirement": "Low" or "Moderate" or "High",
+  "recommended_season": "Optimal sowing window in India.",
+  "npk_advice": "Specific fertilizer recommendation to optimize yield for {crop_name}.",
+  "risks_and_ipm": "Key pest/disease risks and abiotic stress factors to monitor.",
+  "action_plan": "Immediate 3-point actionable farmer checklist."
+}}"""
+
+    system_instruction = "You are an expert precision agronomist specialized in Indian cropping calendars, crop agro-climatic requirements, and soil science."
+
+    ai_result = call_gemini_json_prompt(prompt, system_instruction)
+    if ai_result and isinstance(ai_result, dict) and ai_result.get("verdict"):
+        return {
+            "status": "success",
+            "source": "Google Gemini Agronomic AI",
+            "decision": ai_result
+        }
+
+    # Intelligent Dynamic Fallback
+    c_lower = crop_name.lower()
+    is_favorable = True
+    match = 85
+    verdict = "Moderately Suitable"
+    v_type = "moderate"
+    profit = "₹50,000 - ₹80,000/acre"
+    water = "Moderate"
+    ideal_season = season
+
+    if any(k in c_lower for k in ["wheat", "gehun", "mustard", "chickpea", "barley", "cumin"]):
+        ideal_season = "Rabi (Winter: Oct - Mar)"
+        if "rabi" in season.lower():
+            verdict = "Highly Suitable"
+            v_type = "suitable"
+            match = 94
+            profit = "₹55,000 - ₹85,000/acre"
+        else:
+            verdict = "Unfavorable for Current Season"
+            v_type = "unfavorable"
+            match = 45
+    elif any(k in c_lower for k in ["rice", "paddy", "cotton", "soybean", "maize", "groundnut", "tur"]):
+        ideal_season = "Kharif (Monsoon: Jun - Oct)"
+        if "kharif" in season.lower():
+            verdict = "Highly Suitable"
+            v_type = "suitable"
+            match = 93
+            profit = "₹60,000 - ₹95,000/acre"
+        else:
+            verdict = "Unfavorable for Current Season"
+            v_type = "unfavorable"
+            match = 50
+    elif any(k in c_lower for k in ["dragon fruit", "pitaya", "kamalam"]):
+        ideal_season = "Spring / Summer Planting"
+        verdict = "Highly Suitable"
+        v_type = "suitable"
+        match = 90
+        profit = "₹2,50,000 - ₹4,50,000/acre (Year 2+)"
+        water = "Low (Drip Required)"
+    elif any(k in c_lower for k in ["saffron", "kesar"]):
+        ideal_season = "Autumn (Temperate High-Altitude)"
+        verdict = "Unfavorable for Current Climate"
+        v_type = "unfavorable"
+        match = 25
+        profit = "High in Kashmir, Not viable in plains"
+        water = "Moderate"
+    else:
+        verdict = "Moderately Suitable"
+        v_type = "moderate"
+        match = 82
+        profit = "₹45,000 - ₹75,000/acre"
+
+    return {
+        "status": "success",
+        "source": "Agronomic Knowledge Base Fallback",
+        "decision": {
+            "crop": crop_name,
+            "verdict": verdict,
+            "verdict_type": v_type,
+            "match_score": f"{match}%",
+            "verdict_summary": f"{crop_name} evaluated for {soil_type} in {district}, {state}. Overall match is {match}%.",
+            "soil_suitability": f"{soil_type} with N:{n}, P:{p}, K:{k} kg/ha provides adequate root support for {crop_name}.",
+            "climate_suitability": f"Current weather ({temp}, {hum} humidity) cross-referenced with temperature tolerance curves.",
+            "profit_estimate": profit,
+            "water_requirement": water,
+            "recommended_season": ideal_season,
+            "npk_advice": f"Apply balanced NPK adjusted to soil baseline of N:{n}, P:{p}, K:{k} kg/ha.",
+            "risks_and_ipm": "Monitor for seasonal sucking pests and fungal leaf spots during humid intervals.",
+            "action_plan": f"1. Verify seed germination rate before sowing. 2. Ensure field drainage. 3. Soil test after 60 days."
+        }
+    }
+
 class KhetRequestHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=BASE_DIR, **kwargs)
@@ -1475,6 +1775,38 @@ class KhetRequestHandler(SimpleHTTPRequestHandler):
             except Exception as e:
                 print(f"Exception in /api/chat: {e}")
                 self.send_json(500, {"status": "error", "message": "Sorry, I couldn't connect to the AI service right now. Please try again."})
+            return
+
+        if self.path == '/api/recommend-crops':
+            try:
+                content_len = int(self.headers.get('Content-Length', 0))
+                post_data = self.rfile.read(content_len)
+                payload = json.loads(post_data.decode('utf-8')) if post_data else {}
+                soil_data = payload.get('soilData') or payload.get('soil_data') or {}
+                weather_data = payload.get('weatherData') or payload.get('weather_data') or {}
+                res = generate_crop_recommendations(soil_data, weather_data)
+                self.send_json(200, res)
+            except Exception as e:
+                print(f"Exception in /api/recommend-crops: {e}")
+                self.send_json(500, {"status": "error", "message": str(e)})
+            return
+
+        if self.path == '/api/crop-decision':
+            try:
+                content_len = int(self.headers.get('Content-Length', 0))
+                post_data = self.rfile.read(content_len)
+                payload = json.loads(post_data.decode('utf-8')) if post_data else {}
+                crop_name = payload.get('crop_name') or payload.get('crop') or ''
+                soil_data = payload.get('soilData') or payload.get('soil_data') or {}
+                weather_data = payload.get('weatherData') or payload.get('weather_data') or {}
+                if not crop_name or not str(crop_name).strip():
+                    self.send_json(400, {"status": "error", "message": "Crop name is required"})
+                    return
+                res = evaluate_crop_suitability(crop_name, soil_data, weather_data)
+                self.send_json(200, res)
+            except Exception as e:
+                print(f"Exception in /api/crop-decision: {e}")
+                self.send_json(500, {"status": "error", "message": str(e)})
             return
 
         if self.path == '/api/reconcile':

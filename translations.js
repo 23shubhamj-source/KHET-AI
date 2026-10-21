@@ -4,6 +4,13 @@
 
 const khetTranslations = {
   "en": {
+    "crop_search_btn": "Evaluate Crop",
+    "crop_search_evaluating": "Evaluating crop suitability with Google Gemini AI...",
+    "crop_adopt_target_btn": "Adopt as Active Target Crop",
+    "crop_verdict_suitable": "Highly Suitable",
+    "crop_verdict_moderate": "Moderately Suitable",
+    "crop_verdict_unfavorable": "Unfavorable / High Risk",
+
     "nav_evidence": "Evidence Analysis",
     "evidence_badge": "Centralized Multi-Source Intelligence & XAI",
     "evidence_title": "Evidence Reconciliation & Explainable AI",
@@ -345,6 +352,13 @@ const khetTranslations = {
     "footer_made_with": "Made with 🌾 for Climate-Smart Agriculture"
   },
   "hi": {
+    "crop_search_btn": "फसल मूल्यांकन करें",
+    "crop_search_evaluating": "गूगल जेमिनी एआई द्वारा फसल उपयुक्तता का विश्लेषण हो रहा है...",
+    "crop_adopt_target_btn": "सक्रिय लक्ष्य फसल के रूप में चुनें",
+    "crop_verdict_suitable": "अत्यधिक उपयुक्त",
+    "crop_verdict_moderate": "मध्यम उपयुक्त",
+    "crop_verdict_unfavorable": "प्रतिकूल / उच्च जोखिम",
+
     "nav_evidence": "साक्ष्य विश्लेषण",
     "evidence_badge": "केंद्रीकृत बहु-स्रोत बुद्धिमत्ता एवं XAI",
     "evidence_title": "साक्ष्य समाधान एवं व्याख्या योग्य AI (XAI)",
@@ -686,6 +700,13 @@ const khetTranslations = {
     "footer_made_with": "जलवायु-अनुकूल खेती के लिए 🌾 से निर्मित"
   },
   "mr": {
+    "crop_search_btn": "पीक मूल्यांकन करा",
+    "crop_search_evaluating": "गुगल जेमिनी एआय द्वारे पीक उपयुक्ततेचे विश्लेषण होत आहे...",
+    "crop_adopt_target_btn": "सक्रिय लक्ष्य पीक म्हणून स्वीकारा",
+    "crop_verdict_suitable": "अतिशय योग्य",
+    "crop_verdict_moderate": "मध्यम योग्य",
+    "crop_verdict_unfavorable": "प्रतिकूल / उच्च धोका",
+
     "nav_evidence": "पुरावा विश्लेषण",
     "evidence_badge": "केंद्रीकृत बहु-स्रोत बुद्धिमत्ता आणि XAI",
     "evidence_title": "पुरावा समन्वय आणि स्पष्टीकरणात्मक AI",
@@ -1027,6 +1048,13 @@ const khetTranslations = {
     "footer_made_with": "जलवायु-अनुकूल खेती के लिए 🌾 से निर्मित"
   },
   "gu": {
+    "crop_search_btn": "પાક મૂલ્યાંકન કરો",
+    "crop_search_evaluating": "ગૂગલ જેમિની એઆઈ દ્વારા પાક અનુકૂળતાનું મૂલ્યાંકન થઈ રહ્યું છે...",
+    "crop_adopt_target_btn": "સક્રિય લક્ષ્ય પાક તરીકે સ્વીકારો",
+    "crop_verdict_suitable": "ખૂબ જ અનુકૂળ",
+    "crop_verdict_moderate": "મધ્યમ અનુકૂળ",
+    "crop_verdict_unfavorable": "પ્રતિકૂળ / ઊંચું જોખમ",
+
     "nav_evidence": "પુરાવા વિશ્લેષણ",
     "evidence_badge": "કેન્દ્રીકૃત બહુ-સ્ત્રોત બુદ્ધિમત્તા અને XAI",
     "evidence_title": "પુરાવા સમાધાન અને સમજાવી શકાય તેવું AI",
@@ -1368,6 +1396,13 @@ const khetTranslations = {
     "footer_made_with": "जलवायु-अनुकूल खेती के लिए 🌾 से निर्मित"
   },
   "pa": {
+    "crop_search_btn": "ਫ਼ਸਲ ਦਾ ਮੁਲਾਂਕਣ ਕਰੋ",
+    "crop_search_evaluating": "ਗੂਗਲ ਜੈਮਿਨੀ ਏਆਈ ਦੁਆਰਾ ਫ਼ਸਲ ਅਨੁਕੂਲਤਾ ਦੀ ਜਾਂਚ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ...",
+    "crop_adopt_target_btn": "ਸਰਗਰਮ ਟੀਚਾ ਫ਼ਸਲ ਵਜੋਂ ਚੁਣੋ",
+    "crop_verdict_suitable": "ਬਹੁਤ ਢੁਕਵਾਂ",
+    "crop_verdict_moderate": "ਦਰਮਿਆਨਾ ਢੁਕਵਾਂ",
+    "crop_verdict_unfavorable": "ਅਣਉਚਿਤ / ਉੱਚ ਜੋਖਮ",
+
     "nav_evidence": "ਸਬੂਤ ਵਿਸ਼ਲੇਸ਼ਣ",
     "evidence_badge": "ਕੇਂਦਰੀਕ੍ਰਿਤ ਬਹੁ-ਸਰੋਤ ਬੁੱਧੀਮੱਤਾ ਅਤੇ XAI",
     "evidence_title": "ਸਬੂਤ ਸੁਲਝਾਅ ਅਤੇ ਵਿਆਖਿਆ ਯੋਗ AI",
@@ -1709,6 +1744,13 @@ const khetTranslations = {
     "footer_made_with": "जलवायु-अनुकूल खेती के लिए 🌾 से निर्मित"
   },
   "bn": {
+    "crop_search_btn": "ফসল মূল্যায়ন করুন",
+    "crop_search_evaluating": "গুগল জেমিনি এআই দিয়ে ফসলের উপযুক্ততা বিশ্লেষণ করা হচ্ছে...",
+    "crop_adopt_target_btn": "সক্রিয় লক্ষ্য ফসল হিসাবে নির্বাচন করুন",
+    "crop_verdict_suitable": "অত্যন্ত উপযুক্ত",
+    "crop_verdict_moderate": "মাঝারি উপযুক্ত",
+    "crop_verdict_unfavorable": "প্রতিকূল / উচ্চ ঝুঁকি",
+
     "nav_evidence": "প্রমাণ বিশ্লেষণ",
     "evidence_badge": "কেন্দ্রীভূত বহু-উৎস বুদ্ধিমত্তা ও XAI",
     "evidence_title": "প্রমাণ সমন্বয় এবং ব্যাখ্যার যোগ্য AI",
@@ -2050,6 +2092,13 @@ const khetTranslations = {
     "footer_made_with": "जलवायु-अनुकूल खेती के लिए 🌾 से निर्मित"
   },
   "te": {
+    "crop_search_btn": "పంట మూల్యాంకనం చేయండి",
+    "crop_search_evaluating": "గూగుల్ జెమిని AI ద్వారా పంట అనుకూలత విశ్లేషించబడుతోంది...",
+    "crop_adopt_target_btn": "యాక్టివ్ టార్గెట్ పంటగా స్వీకరించండి",
+    "crop_verdict_suitable": "చాలా అనుకూలం",
+    "crop_verdict_moderate": "మితమైన అనుకూలం",
+    "crop_verdict_unfavorable": "ప్రతికూలం / అధిక ప్రమాదం",
+
     "nav_evidence": "సాక్ష్యాధార విశ్లేషణ",
     "evidence_badge": "కేంద్రీకృత బహుళ-మూలాల మేధస్సు & XAI",
     "evidence_title": "సాక్ష్యాధార పరిష్కారం & వివరణాత్మక AI",
@@ -2391,6 +2440,13 @@ const khetTranslations = {
     "footer_made_with": "जलवायु-अनुकूल खेती के लिए 🌾 से निर्मित"
   },
   "ta": {
+    "crop_search_btn": "பயிர் மதிப்பீடு செய்",
+    "crop_search_evaluating": "கூகிள் ஜெமினி AI மூலம் பயிர் பொருத்தம் பகுப்பாய்வு செய்யப்படுகிறது...",
+    "crop_adopt_target_btn": "செயலில் உள்ள இலக்கு பயிராக ஏற்கவும்",
+    "crop_verdict_suitable": "மிகவும் பொருத்தமானது",
+    "crop_verdict_moderate": "மிதமான பொருத்தம்",
+    "crop_verdict_unfavorable": "சாதகமற்ற / அதிக ஆபத்து",
+
     "nav_evidence": "சான்றுகள் பகுப்பாய்வு",
     "evidence_badge": "ஒருங்கிணைந்த பல மூல நுண்ணறிவு & XAI",
     "evidence_title": "சான்றுகள் சமரசம் & விளக்கக்கூடிய AI",
@@ -2732,6 +2788,13 @@ const khetTranslations = {
     "footer_made_with": "जलवायु-अनुकूल खेती के लिए 🌾 से निर्मित"
   },
   "kn": {
+    "crop_search_btn": "ಬೆಳೆ ಮೌಲ್ಯಮಾಪನ ಮಾಡಿ",
+    "crop_search_evaluating": "ಗೂಗಲ್ ಜೆಮಿನಿ AI ಮೂಲಕ ಬೆಳೆ ಸೂಕ್ತತೆಯನ್ನು ವಿಶ್ಲೇಷಿಸಲಾಗುತ್ತಿದೆ...",
+    "crop_adopt_target_btn": "ಸಕ್ರಿಯ ಗುರಿ ಬೆಳೆಯಾಗಿ ಅಳವಡಿಸಿಕೊಳ್ಳಿ",
+    "crop_verdict_suitable": "ಬಹಳ ಸೂಕ್ತವಾಗಿದೆ",
+    "crop_verdict_moderate": "ಮಧ್ಯಮ ಸೂಕ್ತ",
+    "crop_verdict_unfavorable": "ಅನನುಕೂಲ / ಹೆಚ್ಚಿನ ಅಪಾಯ",
+
     "nav_evidence": "ಸಾಕ್ಷ್ಯ ವಿಶ್ಲೇಷಣೆ",
     "evidence_badge": "ಕೇಂದ್ರೀಕೃತ ಬಹು-ಮೂಲ ಬುದ್ಧಿಮತ್ತೆ & XAI",
     "evidence_title": "ಸಾಕ್ಷ್ಯ ಸಮನ್ವಯ ಮತ್ತು ವಿವರಣಾತ್ಮಕ AI",
@@ -3073,6 +3136,13 @@ const khetTranslations = {
     "footer_made_with": "जलवायु-अनुकूल खेती के लिए 🌾 से निर्मित"
   },
   "ml": {
+    "crop_search_btn": "വിള മൂല്യനിർണ്ണയം നടത്തുക",
+    "crop_search_evaluating": "ഗൂഗിൾ ജെമിനി AI ഉപയോഗിച്ച് വിള അനുയോജ്യത വിശകലനം ചെയ്യുന്നു...",
+    "crop_adopt_target_btn": "സജീവ ലക്ഷ്യ വിളയായി തിരഞ്ഞെടുക്കുക",
+    "crop_verdict_suitable": "വളരെ അനുയോജ്യം",
+    "crop_verdict_moderate": "മിതമായ അനുയോജ്യം",
+    "crop_verdict_unfavorable": "പ്രതികൂലം / ഉയർന്ന സാധ്യത",
+
     "nav_evidence": "തെളിവ് വിശകലനം",
     "evidence_badge": "കേന്ദ്രീകൃത ബഹു-ഉറവിട ഇന്റലിജൻസ് & XAI",
     "evidence_title": "തെളിവ് അനുരഞ്ജനവും വിശദീകരിക്കാവുന്ന AI-യും",
@@ -3414,6 +3484,13 @@ const khetTranslations = {
     "footer_made_with": "जलवायु-अनुकूल खेती के लिए 🌾 से निर्मित"
   },
   "or": {
+    "crop_search_btn": "ଫସଲ ମୂଲ୍ୟାଙ୍କନ କରନ୍ତୁ",
+    "crop_search_evaluating": "ଗୁଗଲ୍ ଜେମିନି AI ଦ୍ୱାରା ଫସଲ ଉପଯୁକ୍ତତା ବିଶ୍ଳେଷଣ କରାଯାଉଛି...",
+    "crop_adopt_target_btn": "ସକ୍ରିୟ ଲକ୍ଷ୍ୟ ଫସଲ ଭାବରେ ଗ୍ରହଣ କରନ୍ତୁ",
+    "crop_verdict_suitable": "ଅତ୍ୟନ୍ତ ଉପଯୁକ୍ତ",
+    "crop_verdict_moderate": "ମଧ୍ୟମ ଉପଯୁକ୍ତ",
+    "crop_verdict_unfavorable": "ପ୍ରତିକୂଳ / ଉଚ୍ଚ ବିପଦ",
+
     "nav_evidence": "ପ୍ରମାଣ ବିଶ୍ଳେଷଣ",
     "evidence_badge": "କେନ୍ଦ୍ରୀକୃତ ବହୁ-ଉତ୍ସ ବୁଦ୍ଧିମତ୍ତା ଏବଂ XAI",
     "evidence_title": "ପ୍ରମାଣ ସମନ୍ୱୟ ଏବଂ ବ୍ୟାଖ୍ୟାଯୋଗ୍ୟ AI",
